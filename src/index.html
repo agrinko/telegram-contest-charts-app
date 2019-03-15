@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Charts App for Telegram</title>
+    <style>
+      html, body, div, span,
+      h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      footer, header {
+        display: block;
+      }
+
+      body {
+        line-height: 1;
+        background: white;
+      }
+
+      .chart-preview {
+        border: 1px solid black;
+      }
+      .chart-preview svg {
+        width: 100%;
+        height: 400px;
+      }
+      svg polyline {
+        vector-effect: non-scaling-stroke;
+        stroke-width: 2px;
+        fill: none;
+        transition: transform 200ms ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="charts-container"></div>
+      <footer>Switch to Night Mode</footer>
+    </div>
+  </body>
+</html>
