@@ -6,7 +6,7 @@
  * @typedef {[number, number, number, number, number, number]} TransformationMatrix - [a, b, c, d, tx, ty]
  */
 
-import { Chart } from './components/Chart';
+import { ChartBox } from './components/ChartBox';
 
 export function startApp(data) {
   const container = document.getElementById('charts-container');
@@ -15,10 +15,10 @@ export function startApp(data) {
     const el = document.createElement('DIV');
     container.appendChild(el);
 
-    let chart = new Chart(el, chartData);
+    let chart = new ChartBox(el, chartData);
 
     setTimeout(() => {
       chart.render();
-    }, 1000);
+    }, 0);
   });
 }

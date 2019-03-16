@@ -1,71 +1,56 @@
-import {seriesTypes, SVG_VIEW_BOX} from '../config';
-import {ChartPreview} from './ChartPreview';
-import {Line} from "./Line";
+import {LinesGroup} from "./LinesGroup";
+import * as SVG from "../utils/svg.utils";
+import {lineEvents, linesGroupEvents} from "../config";
 
+
+const keyAttr = 'data-key';
 
 export class Chart {
-  constructor(element, data) {
+  constructor(element, lines, options) {
     this.el = element;
-    this.el.className = 'chart';
-    this.title = 'Chart';
+    this.viewBox = options.viewBox;
+    this.linesGroup = new LinesGroup(lines, { viewBox: this.viewBox });
 
-    this._prepareData(data);
-    this._createLayout();
+    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this.renderScale, this);
+
+    this._createElement();
   }
 
   render() {
-    this._renderPreview();
-    //this.renderChartContainer();
-    //this.renderContent();
-    //this.renderLegend();
-  }
+    this.svgLines = {};
+    // SVG.setBounds(...);
+    this.linesGroup.forEach(line => {
+      this.svgLines[line.key] = SVG.createPolyline(line.svgPoints, line.color, {
+        [keyAttr]: line.key
+      });
 
-  _prepareData({columns, types, names, colors}) {
-    this.lines = [];
+      SVG.draw(this.svgContainer, this.svgLines[line.key]);
 
-    let axisCol = columns.find(column => types[column[0]] === seriesTypes.AXIS);
+      this.renderScale();
 
-    this.axis = {
-      key: axisCol[0],
-      values: axisCol.slice(1)
-    };
-
-    columns.forEach(column => {
-      const [key, ...values] = column;
-
-      if (types[key] === seriesTypes.LINE)
-        this.lines.push(new Line(values, {
-          key,
-          axis: this.axis,
-          name: names[key],
-          color: colors[key],
-          viewBox: SVG_VIEW_BOX
-        }));
+      line.events.subscribe(lineEvents.TOGGLE, this._onToggleLine, this);
     });
   }
 
-  _createLayout() {
-    this.el.innerHTML =
-      `<h2 class="chart-title">${this.title}</h2>
-       <div class="chart-container"></div>
-       <div class="chart-preview"></div>
-       <div class="chart-legend"></div>`;
+  renderScale() {
+    for (let key in this.svgLines) {
+      let svgLine = this.svgLines[key];
+      let key = svgLine.getAttribute(keyAttr);
+      let matrix = this.linesGroup.getTransformationMatrix(key);
 
-    const [title, chart, preview, legend] = this.el.children;
-
-    this.layout = {
-      title,
-      chart,
-      preview,
-      legend
-    };
-
-    this.preview = new ChartPreview(preview, this.lines, {
-      viewBox: SVG_VIEW_BOX
-    });
+      SVG.applyTransformationMatrix(svgLine, matrix);
+    }
   }
 
-  _renderPreview() {
-    this.preview.render();
+  _createElement() {
+    this.svgContainer = SVG.generateSVGBox(this.viewBox);
+    this.el.appendChild(this.svgContainer);
+  }
+
+  _onToggleLine(line) {
+      if (line.enabled)
+        this.svgLines[line.key].style.display = '';
+      else
+        this.svgLines[line.key].style.display = 'none';
   }
 }

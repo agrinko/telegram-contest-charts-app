@@ -26,13 +26,19 @@ export function generateSVGBox(viewBox) {
 /**
  * Create SVG <polyline> element
  * @param {string} points
- * @param {string} color
+ * @param {string?} color
+ * @param {Object?} attributes
  * @returns {SVGElement}
  */
-export function createPolyline(points, color = '#000000') {
-  return elementFromString(
+export function createPolyline(points, color = '#000000', attributes = {}) {
+  let el = elementFromString(
     `<polyline points="${points}" stroke="${color}"/>`
   );
+
+  for (let key in attributes)
+    el.setAttribute(key, attributes[key]);
+
+  return el;
 }
 
 /**
@@ -44,4 +50,13 @@ export function elementFromString(html) {
   let tmpl = document.createElementNS("http://www.w3.org/2000/svg", 'svg');
   tmpl.innerHTML = html.trim();
   return tmpl.firstChild;
+}
+
+/**
+ * Apply 2D CSS transformation given by matrix
+ * @param {SVGElement} el
+ * @param {TransformationMatrix} matrix
+ */
+export function applyTransformationMatrix(el, matrix) {
+  el.style.transform = `matrix(${matrix.join(',')})`;
 }

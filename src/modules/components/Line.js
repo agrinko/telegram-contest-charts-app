@@ -1,5 +1,7 @@
 import {getRange} from "../utils/chart.utils";
 import * as SVG from '../utils/svg.utils';
+import {Events} from "../utils/Events";
+import {lineEvents} from "../config";
 
 
 export class Line {
@@ -10,10 +12,12 @@ export class Line {
    *  key: string,
    *  color: string,
    *  axis: Axis,
-   *  viewBox: ViewBox
+   *  viewBox: ViewBox,
+   *  enabled?: boolean
    * }} options
    */
   constructor(values, options) {
+    this.events = new Events();
     this.values = values;
     this.key = options.key;
     this.axis = options.axis;
@@ -21,10 +25,11 @@ export class Line {
     this.viewBox = options.viewBox;
     this.color = options.color;
     this.range = getRange(values);
+    this.enabled = options.enabled || true;
 
     this.svgPoints = SVG.toPolylinePoints(
       this._normalizeToViewBox()
-    )
+    );
   }
 
   get maxX() {
@@ -41,6 +46,12 @@ export class Line {
 
   get minY() {
     return this.range[0];
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+
+    this.events.next(lineEvents.TOGGLE, this);
   }
 
   /**

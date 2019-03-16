@@ -3,4 +3,12 @@ export const seriesTypes = {
   AXIS: 'x'
 };
 
-export const SVG_VIEW_BOX = [100, 100];
+export const REFERENCE_VIEW_BOX = [100, 100];
+
+export const lineEvents = {
+  TOGGLE: 'toggle'
+};
+
+export const linesGroupEvents = {
+  UPDATE_SCALE: 'update-scale'
+};
