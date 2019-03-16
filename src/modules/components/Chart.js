@@ -9,8 +9,15 @@ export class Chart {
   constructor(element, lines, options) {
     this.el = element;
     this.viewBox = options.viewBox;
-    this.linesGroup = new LinesGroup(lines, { viewBox: this.viewBox });
+    this.linesGroup = new LinesGroup(lines, {
+      viewBox: this.viewBox,
+      horizontalScale: null
+    });
 
+
+    if (!window.lg) {
+      window.lg = this.linesGroup;
+    }
     this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this.renderScale, this);
 
     this._createElement();
@@ -48,9 +55,6 @@ export class Chart {
   }
 
   _onToggleLine(line) {
-      if (line.enabled)
-        this.svgLines[line.key].style.display = '';
-      else
-        this.svgLines[line.key].style.display = 'none';
+    this.svgLines[line.key].classList.toggle('disabled')
   }
 }

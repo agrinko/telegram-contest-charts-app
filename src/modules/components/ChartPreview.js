@@ -51,9 +51,6 @@ export class ChartPreview {
   }
 
   _onToggleLine(line) {
-    if (line.enabled)
-      this.svgLines[line.key].style.display = '';
-    else
-      this.svgLines[line.key].style.display = 'none';
+    this.svgLines[line.key].classList.toggle('disabled')
   }
 }

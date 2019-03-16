@@ -36,7 +36,11 @@
         vector-effect: non-scaling-stroke;
         stroke-width: 2px;
         fill: none;
-        transition: transform 200ms ease-in-out;
+        transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
+      }
+
+      svg polyline.disabled {
+        opacity: 0;
       }
     </style>
   </head>
