@@ -1,10 +1,15 @@
 /**
  * Convert array of Point objects into a string for SVG <polyline> element points
  * @param {Array<Point>} points
+ * @param {ViewBox} viewBox
  * @returns string
  */
-export function toPolylinePoints(points) {
-  return points.map(([x, y]) => `${Math.round(x * 100) / 100},${Math.round(y * 100) / 100}`).join(' ');
+export function toPolylinePoints(points, viewBox) {
+  return points.map(([x, y]) => {
+    x = Math.round(x * 100) / 100;
+    y = Math.round((viewBox[1] - y) * 100) / 100;
+    return `${x},${y}`;
+  }).join(' ');
 }
 
 export function draw(svgContainer, element) {

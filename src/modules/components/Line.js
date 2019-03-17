@@ -1,4 +1,4 @@
-import {getRange} from "../utils/chart.utils";
+import {findClosestIndex, getRange} from "../utils/array.utils";
 import * as SVG from '../utils/svg.utils';
 import {Events} from "../utils/Events";
 import {lineEvents} from "../config";
@@ -26,9 +26,11 @@ export class Line {
     this.color = options.color;
     this.range = getRange(values);
     this.enabled = options.enabled || true;
+    this._cachedMinMax = {};
 
     this.svgPoints = SVG.toPolylinePoints(
-      this._normalizeToViewBox()
+      this._normalizeToViewBox(),
+      this.viewBox
     );
   }
 
@@ -52,6 +54,18 @@ export class Line {
     this.enabled = !this.enabled;
 
     this.events.next(lineEvents.TOGGLE, this);
+  }
+
+  getMinMaxWithinIndices(i1, i2) {
+    const key = `${i1}:${i2}`;
+
+    if (this._cachedMinMax.key !== key) {
+      // remember the latest result
+      this._cachedMinMax.key = key;
+      this._cachedMinMax.range = getRange(this.values, [i1, i2]);
+    }
+
+    return this._cachedMinMax.range;
   }
 
   /**

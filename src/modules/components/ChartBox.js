@@ -67,7 +67,7 @@ export class ChartBox {
 
     this.chart = new Chart(chart, this.lines, {
       axis: this.axis,
-      viewBox: [345, 70]
+      viewBox: [345, 100]
     });
 
     this.legend = new ChartLegend(legend, this.lines, {

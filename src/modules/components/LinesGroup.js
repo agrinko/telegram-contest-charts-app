@@ -1,4 +1,4 @@
-import {getRange} from "../utils/chart.utils";
+import {findClosestIndex, getRange} from "../utils/array.utils";
 import {Events} from "../utils/Events";
 import {lineEvents, linesGroupEvents} from "../config";
 
@@ -8,26 +8,27 @@ export class LinesGroup {
     this.events = new Events();
     this.lines = lines;
     this.viewBox = options.viewBox;
-    this.range = this._getFullRange();
-    this.horizontalScale = options.horizontalScale || [this.lines[0].minX, this.lines[0].maxX];
+    this._latestAxisIndices = [];
+    this.xRange = options.xRange || [this.lines[0].minX, this.lines[0].maxX];
+    this.yRange = this._getFullRange();
 
-    this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._onToggle, this));
+    this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._updateScale, this));
   }
 
   get minX() {
-    return this.horizontalScale[0];
+    return this.xRange[0];
   }
 
   get maxX() {
-    return this.horizontalScale[1];
+    return this.xRange[1];
   }
 
   get maxY() {
-    return this.range[1];
+    return this.yRange[1];
   }
 
   get minY() {
-    return this.range[0];
+    return this.yRange[0];
   }
 
   forEach(f) {
@@ -61,27 +62,42 @@ export class LinesGroup {
 
   /**
    * Limit displayed parts of the lines from left and right
-   * @param {Bounds} bounds - bounds given in percentage values
+   * @param {Bounds} bounds
    */
   setHorizontalScale(bounds) {
-    this.horizontalScale = bounds;
-
-    this.events.next(linesGroupEvents.UPDATE_SCALE);
+    this.xRange = bounds;
+    this._latestAxisIndices = []; // invalidate cache
+    this._updateScale();
   }
 
   _getFullRange() {
     let values = [];
+    const [i1, i2] = this._getAxisIndicesRange();
 
     this.lines.forEach(line => {
-      if (line.enabled)
-        values.push(line.minY, line.maxY);
+      if (line.enabled) {
+        let range = line.getMinMaxWithinIndices(i1, i2);
+        values.push(range[0], range[1]);
+      }
     });
 
     return getRange(values) || [];
   }
 
-  _onToggle() {
-    this.range = this._getFullRange();
+  _getAxisIndicesRange() {
+    const axis = this.lines[0].axis.values;
+
+    // used cached indices to avoid recalculations when horizontal scale was not changed
+    if (this._latestAxisIndices.length !== 2) {
+      this._latestAxisIndices[0] = findClosestIndex(axis, this.minX);
+      this._latestAxisIndices[1] = findClosestIndex(axis, this.maxX) - 1; // use smaller element as an upper boundary
+    }
+
+    return this._latestAxisIndices;
+  }
+
+  _updateScale() {
+    this.yRange = this._getFullRange();
     this.events.next(linesGroupEvents.UPDATE_SCALE);
   }
 }

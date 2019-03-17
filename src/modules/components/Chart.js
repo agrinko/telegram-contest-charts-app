@@ -1,6 +1,7 @@
 import {LinesGroup} from "./LinesGroup";
 import * as SVG from "../utils/svg.utils";
 import {lineEvents, linesGroupEvents} from "../config";
+import {findClosestIndex} from "../utils/array.utils";
 
 
 const keyAttr = 'data-key';
@@ -34,6 +35,13 @@ export class Chart {
       SVG.draw(this.svgContainer, this.svgLines[line.key]);
 
       this.renderScale();
+
+      this.svgLines[line.key].addEventListener('mouseover', (event) => {
+        let x = event.clientX / this.el.clientWidth;
+        let i = findClosestIndex(line.axis.values, line.minX + x * (line.maxX - line.minX));
+
+        document.getElementById('output').innerText = `${line.key}: ${i}, ${line.values[i]}`;
+      });
 
       line.events.subscribe(lineEvents.TOGGLE, this._onToggleLine, this);
     });
