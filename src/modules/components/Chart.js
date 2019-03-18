@@ -12,7 +12,7 @@ export class Chart {
     this.viewBox = options.viewBox;
     this.linesGroup = new LinesGroup(lines, {
       viewBox: this.viewBox,
-      horizontalScale: null
+      horizontalBounds: options.horizontalBounds
     });
 
 
@@ -55,6 +55,10 @@ export class Chart {
 
       SVG.applyTransformationMatrix(svgLine, matrix);
     }
+  }
+
+  setBounds(bounds) {
+    this.linesGroup.setHorizontalBounds(bounds);
   }
 
   _createElement() {

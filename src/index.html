@@ -20,8 +20,42 @@
         background: white;
       }
 
+      .chart-box {
+          margin: 30px;
+      }
+
+      .hidden {
+          display: none !important;
+      }
+
       .chart-preview {
-        background: rgba(0, 0, 0, .1);
+        position: relative;
+          margin-top: 25px;
+        background: rgba(0, 0, 0, .05);
+      }
+      .chart-preview .sliding-window {
+          position: absolute;
+          box-sizing: border-box;
+          width: 100%;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          border: 2px solid rgba(0, 0, 0, .2);
+          border-width: 2px 6px;
+          cursor: move;
+          transition: left 60ms linear, width 60ms linear;
+      }
+      .chart-preview .sliding-window .grip {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: -6px;
+          width: 6px;
+          cursor: ew-resize;
+      }
+      .chart-preview .sliding-window .grip.right-grip {
+          left: auto;
+          right: -6px;
       }
       .chart-preview svg {
         width: 100%;

@@ -9,7 +9,7 @@ export class LinesGroup {
     this.lines = lines;
     this.viewBox = options.viewBox;
     this._latestAxisIndices = [];
-    this.xRange = options.xRange || [this.lines[0].minX, this.lines[0].maxX];
+    this.xRange = options.horizontalBounds || [this.lines[0].minX, this.lines[0].maxX];
     this.yRange = this._getFullRange();
 
     this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._updateScale, this));
@@ -64,7 +64,8 @@ export class LinesGroup {
    * Limit displayed parts of the lines from left and right
    * @param {Bounds} bounds
    */
-  setHorizontalScale(bounds) {
+  setHorizontalBounds(bounds) {
+    console.log('set bounds', bounds)
     this.xRange = bounds;
     this._latestAxisIndices = []; // invalidate cache
     this._updateScale();
@@ -89,8 +90,8 @@ export class LinesGroup {
 
     // used cached indices to avoid recalculations when horizontal scale was not changed
     if (this._latestAxisIndices.length !== 2) {
-      this._latestAxisIndices[0] = findClosestIndex(axis, this.minX);
-      this._latestAxisIndices[1] = findClosestIndex(axis, this.maxX) - 1; // use smaller element as an upper boundary
+      this._latestAxisIndices[0] = findClosestIndex(axis, this.minX) - 1;
+      this._latestAxisIndices[1] = findClosestIndex(axis, this.maxX);
     }
 
     return this._latestAxisIndices;

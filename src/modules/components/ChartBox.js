@@ -1,4 +1,4 @@
-import {seriesTypes, REFERENCE_VIEW_BOX} from '../config';
+import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_POINTS_TO_DISPLAY} from '../config';
 import {ChartPreview} from './ChartPreview';
 import {Line} from "./Line";
 import {Chart} from "./Chart";
@@ -28,7 +28,9 @@ export class ChartBox {
 
     this.axis = {
       key: axisCol[0],
-      values: axisCol.slice(1)
+      values: axisCol.slice(1),
+      min: axisCol[1],
+      max: axisCol[axisCol.length - 1]
     };
 
     columns.forEach(column => {
@@ -53,6 +55,7 @@ export class ChartBox {
        <div class="chart-legend"></div>`;
 
     const [title, chart, preview, legend] = this.el.children;
+    const initialBounds = this._getInitialBounds();
 
     this.layout = {
       title,
@@ -62,12 +65,18 @@ export class ChartBox {
     };
 
     this.preview = new ChartPreview(preview, this.lines, {
-      viewBox: [100, 20]
+      viewBox: [100, 20],
+      horizontalScale: this._getScaleByBounds(initialBounds),
+      onRescale: (scale) => {
+        let bounds = this._getBoundsByScale(scale);
+        this.chart.setBounds(bounds);
+      }
     });
 
     this.chart = new Chart(chart, this.lines, {
       axis: this.axis,
-      viewBox: [345, 100]
+      viewBox: [345, 100],
+      horizontalBounds: initialBounds
     });
 
     this.legend = new ChartLegend(legend, this.lines, {
@@ -75,5 +84,26 @@ export class ChartBox {
         this.lines.find(l => l.key === key).toggle(state);
       }
     });
+  }
+
+  _getBoundsByScale(scale) {
+    return [
+      this.axis.min + scale[0] * (this.axis.max - this.axis.min),
+      this.axis.min + scale[1] * (this.axis.max - this.axis.min)
+    ];
+  }
+
+  _getScaleByBounds(bounds) {
+    return [
+      (bounds[0] - this.axis.min) / (this.axis.max - this.axis.min),
+      (bounds[1] - this.axis.min) / (this.axis.max - this.axis.min)
+    ];
+  }
+
+  _getInitialBounds() {
+    const nPoints = Math.min(DEFAULT_POINTS_TO_DISPLAY, this.axis.values.length);
+    const pointsToDisplay = this.axis.values.slice(-nPoints);
+
+    return [pointsToDisplay[0], pointsToDisplay[pointsToDisplay.length - 1]];
   }
 }
