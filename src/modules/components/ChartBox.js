@@ -15,7 +15,9 @@ export class ChartBox {
     this._createLayout();
   }
 
-  render() {
+  render() { // TODO: fix rendering when changing orientation
+    this.chart.setViewBox([this.layout.chart.clientWidth, this.layout.chart.clientHeight]);
+    this.preview.setViewBox([this.layout.preview.clientWidth, this.layout.preview.clientHeight]);
     this.chart.render();
     this.preview.render();
     this.legend.render();
@@ -65,17 +67,20 @@ export class ChartBox {
     };
 
     this.preview = new ChartPreview(preview, this.lines, {
-      viewBox: [100, 20],
+      viewBox: REFERENCE_VIEW_BOX,
       horizontalScale: this._getScaleByBounds(initialBounds),
       onRescale: (scale) => {
         let bounds = this._getBoundsByScale(scale);
         this.chart.setBounds(bounds);
+      },
+      onInteractionDone: () => {
+        this.chart.finishInteraction();
       }
     });
 
     this.chart = new Chart(chart, this.lines, {
       axis: this.axis,
-      viewBox: [345, 100],
+      viewBox: REFERENCE_VIEW_BOX,
       horizontalBounds: initialBounds
     });
 

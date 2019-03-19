@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Charts App for Telegram</title>
     <style>
       html, body, div, span,
@@ -9,6 +10,7 @@
         margin: 0;
         padding: 0;
         border: 0;
+        box-sizing: border-box;
       }
 
       footer, header {
@@ -20,22 +22,35 @@
         background: white;
       }
 
-      .chart-box {
-          margin: 30px;
-      }
-
       .hidden {
           display: none !important;
       }
 
+      #charts-container {
+        display: flex;
+        flex-flow: column nowrap;
+      }
+
+      .chart-box {
+        flex: 1 1 50%;
+        min-width: 300px;
+        margin-bottom: 50px;
+        padding: 3%;
+        overflow: hidden;
+      }
+      .chart-box .chart {
+        min-height: 200px;
+        max-height: 470px;
+        height: 50vh;
+      }
       .chart-preview {
         position: relative;
-          margin-top: 25px;
+        height: 60px;
+        margin: 15px 0;
         background: rgba(0, 0, 0, .05);
       }
       .chart-preview .sliding-window {
           position: absolute;
-          box-sizing: border-box;
           width: 100%;
           left: 0;
           top: 0;
@@ -57,15 +72,51 @@
           left: auto;
           right: -6px;
       }
-      .chart-preview svg {
-        width: 100%;
-        height: 100px;
+
+      .chart {
+        position: relative;
       }
 
-      .chart svg {
-        width: 100%;
-        height: 300px;
+      .chart .scale-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        pointer-events: none;
       }
+      .x-axis {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+      .x-axis > .axis-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        border-bottom: 1px solid lightgrey;
+      }
+      .x-axis > .axis-labels {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      .axis-labels > .label {
+        position: absolute;
+        top: 10px;
+        left: 0;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        color: gray;
+        font-size: 12px;
+        font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+        transition: left 200ms ease-in-out;
+      }
+
       svg polyline {
         vector-effect: non-scaling-stroke;
         stroke-width: 2px;
@@ -76,10 +127,31 @@
       svg polyline.disabled {
         opacity: 0;
       }
+
+      @media (min-width: 1400px) {
+        #charts-container {
+          flex-flow: row wrap;
+        }
+
+        .chart-box {
+          flex-basis: 100%;
+          margin-bottom: 100px;
+        }
+        .chart-box .chart {
+          max-height: 600px;
+          height: 60vh;
+        }
+      }
+
+      @media (min-width: 1600px) {
+        .chart-preview {
+          height: 80px;
+          margin: 25px 0;
+        }
+      }
     </style>
   </head>
   <body>
-    <output id="output" style="display: block; border: 1px solid black; padding: 10px; font-size: large; font-weight: bold; margin: 10px;">0: 0</output>
     <div id="root">
       <div id="charts-container"></div>
       <footer>Switch to Night Mode</footer>

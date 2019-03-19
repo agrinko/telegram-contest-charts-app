@@ -1,3 +1,5 @@
+import { round } from "./math.utils";
+
 /**
  * Convert array of Point objects into a string for SVG <polyline> element points
  * @param {Array<Point>} points
@@ -6,9 +8,7 @@
  */
 export function toPolylinePoints(points, viewBox) {
   return points.map(([x, y]) => {
-    x = Math.round(x * 100) / 100;
-    y = Math.round((viewBox[1] - y) * 100) / 100;
-    return `${x},${y}`;
+    return `${round(x, 2)},${round(viewBox[1] - y, 2)}`;
   }).join(' ');
 }
 
@@ -23,7 +23,7 @@ export function draw(svgContainer, element) {
  */
 export function generateSVGBox(viewBox) {
   return elementFromString(
-    `<svg viewBox="0 0 ${viewBox[0]} ${viewBox[1]}" preserveAspectRatio="none"
+    `<svg viewBox="0 0 ${viewBox[0]} ${viewBox[1]}"
                 xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>`
   );
 }
@@ -38,6 +38,23 @@ export function generateSVGBox(viewBox) {
 export function createPolyline(points, color = '#000000', attributes = {}) {
   let el = elementFromString(
     `<polyline points="${points}" stroke="${color}"/>`
+  );
+
+  for (let key in attributes)
+    el.setAttribute(key, attributes[key]);
+
+  return el;
+}
+
+/**
+ * Create SVG <line> element
+ * @param {string} points
+ * @param {Object?} attributes
+ * @returns {SVGElement}
+ */
+export function createLine(points, attributes = {}) {
+  let el = elementFromString(
+    `<line x1="${points[0][0]}" y1="${points[0][1]}" x2="${points[1][0]}" y2="${points[1][1]}" />`
   );
 
   for (let key in attributes)

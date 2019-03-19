@@ -65,10 +65,17 @@ export class LinesGroup {
    * @param {Bounds} bounds
    */
   setHorizontalBounds(bounds) {
-    console.log('set bounds', bounds)
     this.xRange = bounds;
     this._latestAxisIndices = []; // invalidate cache
     this._updateScale();
+  }
+
+  /**
+   * Update the view box of the group
+   * @param {ViewBox} viewBox
+   */
+  setViewBox(viewBox) {
+    this.viewBox = viewBox;
   }
 
   _getFullRange() {

@@ -13,12 +13,18 @@ export class ChartPreview {
     this.linesGroup = new LinesGroup(lines, { viewBox: this.viewBox });
     this.horizontalScale = options.horizontalScale || [0.75, 1];
     this.onRescale = options.onRescale;
+    this.onInteractionDone = options.onInteractionDone;
 
-    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this.renderScale, this);
+    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this._transformLines, this);
 
     this._createElement();
   }
 
+  setViewBox(viewBox) {
+    this.viewBox = viewBox;
+    this.svgContainer.setAttribute('viewBox', `0 0 ${viewBox[0]} ${viewBox[1]}`);
+    this.linesGroup.setViewBox(viewBox);
+  }
 
   render() {
     this.svgLines = {};
@@ -30,15 +36,15 @@ export class ChartPreview {
 
       SVG.draw(this.svgContainer, this.svgLines[line.key]);
 
-      this.renderScale();
-
       line.events.subscribe(lineEvents.TOGGLE, this._onToggleLine, this);
     });
 
+
+    this._transformLines();
     this._renderSlider();
   }
 
-  renderScale() {
+  _transformLines() {
     for (let key in this.svgLines) {
       let svgLine = this.svgLines[key];
       let key = svgLine.getAttribute(keyAttr);
@@ -51,9 +57,9 @@ export class ChartPreview {
   _createElement() {
     this.slider = DOM.elementFromString(
       `<div class="sliding-window hidden">
-               <div class="grip left-grip"></div>
-               <div class="grip right-grip"></div>
-             </div>`);
+        <div class="grip left-grip"></div>
+        <div class="grip right-grip"></div>
+      </div>`);
     this.svgContainer = SVG.generateSVGBox(this.viewBox);
 
     this.el.appendChild(this.slider);
@@ -120,6 +126,8 @@ export class ChartPreview {
     function  stopDD() {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', stopDD);
+
+      self.onInteractionDone();
     }
   }
 }
