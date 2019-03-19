@@ -2,15 +2,14 @@ import { elementFromString } from '../utils/dom.utils';
 
 
 export class ChartLegend {
-  constructor(element, lines, options) {
+  constructor(element, lines) {
     this.el = element;
+    this.lines = lines;
     this.values = lines.map(line => ({
       key: line.key,
       label: line.name,
       enabled: line.enabled
     }));
-
-    this.onToggle = options.onToggle;
   }
 
   render() {
@@ -25,8 +24,8 @@ export class ChartLegend {
       );
 
       button.querySelector('input').addEventListener('change', (event) => {
-        let input = event.target;
-        this.onToggle(input.value, input.checked);
+        let line = this.lines.find(l => l.key === event.target.value);
+        line.toggle();
       });
 
       this.el.appendChild(button);

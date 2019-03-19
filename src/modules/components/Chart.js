@@ -14,12 +14,10 @@ const xAxisMargin = 24;
 export class Chart {
   constructor(element, lines, options) {
     this.el = element;
-    this.viewBox = options.viewBox;
     this.axis = options.axis;
-    this.horizontalBounds = options.horizontalBounds;
+    this.bounds = options.bounds;
     this.linesGroup = new LinesGroup(lines, {
-      viewBox: this.viewBox,
-      horizontalBounds: this.horizontalBounds
+      bounds: this.bounds
     });
 
     if (!window.lg) { // TODO: delete
@@ -31,17 +29,9 @@ export class Chart {
     this._createLayout();
   }
 
-  setViewBox([width, height]) {
-    height -= xAxisMargin;
-
-    this.viewBox = [width, height];
-    this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    this.linesGroup.setViewBox([width, height]);
-  }
-
   render() {
     this.svgLines = {};
-    // SVG.setBounds(...);
+
     this.linesGroup.forEach(line => {
       this.svgLines[line.key] = SVG.createPolyline(line.svgPoints, line.color, {
         [keyAttr]: line.key
@@ -52,7 +42,7 @@ export class Chart {
       this.svgLines[line.key].addEventListener('mouseover', (event) => {
         let bounds = this.el.getBoundingClientRect();
         let x = (event.clientX - bounds.left) / bounds.width;
-        let i = findClosestIndex(line.axis.values, this.horizontalBounds[0] + x * (this.horizontalBounds[1] - this.horizontalBounds[0]));
+        let i = findClosestIndex(line.axis.values, this.bounds[0] + x * (this.bounds[1] - this.bounds[0]));
 
         console.log(`${line.key}: ${format(line.axis.values[i])}, ${line.values[i]}`);
       });
@@ -64,12 +54,20 @@ export class Chart {
     this.xAxis.render(true);
   }
 
+  setViewBox([width, height]) {
+    height -= xAxisMargin;
+
+    this.viewBox = [width, height];
+    this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    this.linesGroup.setViewBox([width, height]);
+  }
+
   setBounds(bounds) {
-    if (equals(bounds[0], this.horizontalBounds[0], TIME_COMPARISON_PRECISION) &&
-        equals(bounds[1], this.horizontalBounds[1], TIME_COMPARISON_PRECISION))
+    if (equals(bounds[0], this.bounds[0], TIME_COMPARISON_PRECISION) &&
+        equals(bounds[1], this.bounds[1], TIME_COMPARISON_PRECISION))
       return; // skip any actions if bounds did not actually change
 
-    this.horizontalBounds = bounds;
+    this.bounds = bounds;
     this.linesGroup.setHorizontalBounds(bounds);
     this.xAxis.setBounds(bounds);
   }
@@ -83,6 +81,7 @@ export class Chart {
       let svgLine = this.svgLines[key];
       let key = svgLine.getAttribute(keyAttr);
       let matrix = this.linesGroup.getTransformationMatrix(key);
+      console.log(`${key}: [${matrix.join(', ')}]`)
 
       SVG.applyTransformationMatrix(svgLine, matrix);
     }
@@ -96,11 +95,10 @@ export class Chart {
       </div>`
     );
 
-    this.svgContainer = SVG.generateSVGBox(this.viewBox);
+    this.svgContainer = SVG.generateSVGBox(this.viewBox || [1, 1]);
     this.xAxis = new Axis(this.scaleContainer.firstElementChild, this.axis.values, {
-      viewBox: this.viewBox,
       bottomMargin: xAxisMargin,
-      bounds: this.horizontalBounds
+      bounds: this.bounds
     });
 
     this.el.appendChild(this.scaleContainer);

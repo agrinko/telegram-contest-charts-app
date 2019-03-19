@@ -39,3 +39,8 @@ export const lineEvents = {
 export const linesGroupEvents = {
   UPDATE_SCALE: 'update-scale'
 };
+
+export const previewEvents = {
+  UPDATE_BOUNDS: 'update-bounds',
+  FINISH_INTERACTION: 'finish-interaction'
+};

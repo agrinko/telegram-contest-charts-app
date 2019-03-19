@@ -4,12 +4,11 @@ import {lineEvents, linesGroupEvents} from "../config";
 
 
 export class LinesGroup {
-  constructor(lines, options) {
+  constructor(lines, options = {}) {
     this.events = new Events();
     this.lines = lines;
-    this.viewBox = options.viewBox;
     this._latestAxisIndices = [];
-    this.xRange = options.horizontalBounds || [this.lines[0].minX, this.lines[0].maxX];
+    this.xRange = options.bounds || [this.lines[0].minX, this.lines[0].maxX];
     this.yRange = this._getFullRange();
 
     this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._updateScale, this));

@@ -1,7 +1,8 @@
 import * as SVG from '../utils/svg.utils';
 import * as DOM from '../utils/dom.utils';
 import {LinesGroup} from "./LinesGroup";
-import {lineEvents, linesGroupEvents} from "../config";
+import {lineEvents, linesGroupEvents, previewEvents} from "../config";
+import {Events} from "../utils/Events";
 
 
 const keyAttr = 'data-key';
@@ -9,11 +10,10 @@ const keyAttr = 'data-key';
 export class ChartPreview {
   constructor(element, lines, options) {
     this.el = element;
-    this.viewBox = options.viewBox;
-    this.linesGroup = new LinesGroup(lines, { viewBox: this.viewBox });
-    this.horizontalScale = options.horizontalScale || [0.75, 1];
-    this.onRescale = options.onRescale;
-    this.onInteractionDone = options.onInteractionDone;
+    this.axis = options.axis;
+    this.events = new Events();
+    this.linesGroup = new LinesGroup(lines);
+    this.horizontalScale = this._getScaleByBounds(options.bounds) || [0.75, 1];
 
     this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this._transformLines, this);
 
@@ -60,7 +60,7 @@ export class ChartPreview {
         <div class="grip left-grip"></div>
         <div class="grip right-grip"></div>
       </div>`);
-    this.svgContainer = SVG.generateSVGBox(this.viewBox);
+    this.svgContainer = SVG.generateSVGBox(this.viewBox || [1, 1]);
 
     this.el.appendChild(this.slider);
     this.el.appendChild(this.svgContainer);
@@ -117,7 +117,8 @@ export class ChartPreview {
       self.slider.style.left = left + 'px';
       self.slider.style.width = (right - left) + 'px';
       this.horizontalScale = [left/bounds.width, right/bounds.width];
-      self.onRescale(this.horizontalScale);
+
+      self.events.next(previewEvents.UPDATE_BOUNDS, self._getBoundsByScale(this.horizontalScale));
 
       prevLeft = left;
       prevRight = right;
@@ -127,7 +128,21 @@ export class ChartPreview {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', stopDD);
 
-      self.onInteractionDone();
+      self.events.next(previewEvents.FINISH_INTERACTION);
     }
+  }
+
+  _getBoundsByScale(scale) {
+    return [
+      this.axis.min + scale[0] * (this.axis.max - this.axis.min),
+      this.axis.min + scale[1] * (this.axis.max - this.axis.min)
+    ];
+  }
+
+  _getScaleByBounds(bounds) {
+    return [
+      (bounds[0] - this.axis.min) / (this.axis.max - this.axis.min),
+      (bounds[1] - this.axis.min) / (this.axis.max - this.axis.min)
+    ];
   }
 }

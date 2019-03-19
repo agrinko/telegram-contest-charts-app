@@ -1,4 +1,4 @@
-import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_POINTS_TO_DISPLAY} from '../config';
+import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_POINTS_TO_DISPLAY, previewEvents} from '../config';
 import {ChartPreview} from './ChartPreview';
 import {Line} from "./Line";
 import {Chart} from "./Chart";
@@ -67,42 +67,18 @@ export class ChartBox {
     };
 
     this.preview = new ChartPreview(preview, this.lines, {
-      viewBox: REFERENCE_VIEW_BOX,
-      horizontalScale: this._getScaleByBounds(initialBounds),
-      onRescale: (scale) => {
-        let bounds = this._getBoundsByScale(scale);
-        this.chart.setBounds(bounds);
-      },
-      onInteractionDone: () => {
-        this.chart.finishInteraction();
-      }
+      axis: this.axis,
+      bounds: initialBounds
     });
 
     this.chart = new Chart(chart, this.lines, {
       axis: this.axis,
-      viewBox: REFERENCE_VIEW_BOX,
-      horizontalBounds: initialBounds
+      bounds: initialBounds
     });
 
-    this.legend = new ChartLegend(legend, this.lines, {
-      onToggle: (key, state) => {
-        this.lines.find(l => l.key === key).toggle(state);
-      }
-    });
-  }
+    this.legend = new ChartLegend(legend, this.lines);
 
-  _getBoundsByScale(scale) {
-    return [
-      this.axis.min + scale[0] * (this.axis.max - this.axis.min),
-      this.axis.min + scale[1] * (this.axis.max - this.axis.min)
-    ];
-  }
-
-  _getScaleByBounds(bounds) {
-    return [
-      (bounds[0] - this.axis.min) / (this.axis.max - this.axis.min),
-      (bounds[1] - this.axis.min) / (this.axis.max - this.axis.min)
-    ];
+    this._connectChartWithPreview();
   }
 
   _getInitialBounds() {
@@ -110,5 +86,15 @@ export class ChartBox {
     const pointsToDisplay = this.axis.values.slice(-nPoints);
 
     return [pointsToDisplay[0], pointsToDisplay[pointsToDisplay.length - 1]];
+  }
+
+  _connectChartWithPreview() {
+    this.preview.events.subscribe(previewEvents.UPDATE_BOUNDS, (bounds) => {
+      this.chart.setBounds(bounds);
+    });
+
+    this.preview.events.subscribe(previewEvents.FINISH_INTERACTION, () => {
+      this.chart.finishInteraction();
+    });
   }
 }
