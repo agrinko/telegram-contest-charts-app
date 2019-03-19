@@ -42,11 +42,13 @@
         min-height: 200px;
         max-height: 470px;
         height: 50vh;
+        user-select: none;
       }
       .chart-preview {
         position: relative;
-        height: 60px;
+        height: 50px;
         margin: 15px 0;
+        user-select: none;
       }
       .chart-preview svg {
         position: relative;
@@ -60,7 +62,7 @@
         top: 0;
         bottom: 0;
         border: 2px solid rgba(220, 230, 245, 1);
-        border-width: 2px 8px;
+        border-width: 1px 6px;
         cursor: pointer;
         transition: left 60ms linear, width 60ms linear;
         z-index: 0;
@@ -136,15 +138,32 @@
         transition: left 200ms ease-in-out;
       }
 
+      .chart svg polyline {
+          stroke-width: 2.2px;
+      }
       svg polyline {
         vector-effect: non-scaling-stroke;
-        stroke-width: 2px;
+        stroke-width: 1.4px;
         fill: none;
         transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
       }
 
       svg polyline.disabled {
         opacity: 0;
+      }
+
+      @media (min-width: 800px) {
+        svg polyline {
+            stroke-width: 1.6px;
+        }
+
+        .chart svg polyline {
+          stroke-width: 3px;
+        }
+
+        .chart-preview {
+          height: 60px;
+        }
       }
 
       @media (min-width: 1400px) {

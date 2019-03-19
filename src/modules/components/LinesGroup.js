@@ -7,7 +7,8 @@ export class LinesGroup {
   constructor(lines, options = {}) {
     this.events = new Events();
     this.lines = lines;
-    this._latestAxisIndices = [];
+    this.padding = options.padding || 0;
+
     this.xRange = options.bounds || [this.lines[0].minX, this.lines[0].maxX];
     this.yRange = this._getFullRange();
 
@@ -23,11 +24,11 @@ export class LinesGroup {
   }
 
   get maxY() {
-    return this.yRange[1];
+    return this.yRange[1] + this.padding * (this.yRange[1] - this.yRange[0]);
   }
 
   get minY() {
-    return this.yRange[0];
+    return this.yRange[0] - this.padding * (this.yRange[1] - this.yRange[0]);
   }
 
   forEach(f) {
@@ -65,7 +66,7 @@ export class LinesGroup {
    */
   setHorizontalBounds(bounds) {
     this.xRange = bounds;
-    this._latestAxisIndices = []; // invalidate cache
+    this._latestAxisIndices = null; // invalidate cache
     this._updateScale();
   }
 
@@ -95,10 +96,11 @@ export class LinesGroup {
     const axis = this.lines[0].axis.values;
 
     // used cached indices to avoid recalculations when horizontal scale was not changed
-    if (this._latestAxisIndices.length !== 2) {
-      this._latestAxisIndices[0] = findClosestIndex(axis, this.minX) - 1;
-      this._latestAxisIndices[1] = findClosestIndex(axis, this.maxX);
-    }
+    if (!this._latestAxisIndices)
+      this._latestAxisIndices = [
+        findClosestIndex(axis, this.minX) - 1,
+        findClosestIndex(axis, this.maxX)
+      ];
 
     return this._latestAxisIndices;
   }

@@ -5,11 +5,9 @@ export const seriesTypes = {
 
 export const REFERENCE_VIEW_BOX = [100, 100];
 
-/**
- * Number of latest data points to be displayed initially, before user changes scale
- * @type {number}
- */
-export const DEFAULT_POINTS_TO_DISPLAY = 28; // consider switching to "default date range to display", e.g. to show last month data
+export const CHART_PREVIEW_PADDING = .1;
+
+export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
 export const DEFAULT_LOCALE = 'en-us';
 export const DATE_FORMAT = {
@@ -17,7 +15,11 @@ export const DATE_FORMAT = {
   day: 'numeric'
 };
 
-export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
+/**
+ * Default date range to scale to initially (in milliseconds)
+ * @type {number}
+ */
+export const DEFAULT_DATE_RANGE = 33 * ONE_DAY;
 
 /**
  * Timestamps that differ by less than this constant are considered equal

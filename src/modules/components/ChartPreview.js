@@ -1,6 +1,6 @@
 import * as SVG from '../utils/svg.utils';
 import {LinesGroup} from "./LinesGroup";
-import {lineEvents, linesGroupEvents, previewEvents} from "../config";
+import {CHART_PREVIEW_PADDING, lineEvents, linesGroupEvents, previewEvents} from "../config";
 import {Events} from "../utils/Events";
 import {Slider} from "./Slider";
 
@@ -12,20 +12,37 @@ export class ChartPreview {
     this.el = element;
     this.axis = options.axis;
     this.events = new Events();
-    this.linesGroup = new LinesGroup(lines);
+    this.linesGroup = new LinesGroup(lines, {
+      padding: CHART_PREVIEW_PADDING
+    });
     this.scale = this._getScaleByBounds(options.bounds) || [0.75, 1];
+  }
 
-    this._createLayout();
-    this._createSlider();
+  draw() {
+    this.layout = {
+      svg: SVG.generateSVGBox(this.viewBox || [1, 1])
+    };
+
+    this.el.appendChild(this.layout.svg);
+
+    this.slider = new Slider(this.el, {
+      onChange: (scale) => {
+        this.events.next(previewEvents.UPDATE_BOUNDS, this._getBoundsByScale(scale));
+      },
+      onFinish: () => {
+        this.events.next(previewEvents.FINISH_INTERACTION);
+      }
+    });
   }
 
   setViewBox(viewBox) {
     this.viewBox = viewBox;
     this.layout.svg.setAttribute('viewBox', `0 0 ${viewBox[0]} ${viewBox[1]}`);
     this.linesGroup.setViewBox(viewBox);
+    this._transformLines();
   }
 
-  render() {
+  renderData() {
     this.svgLines = {};
 
     this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this._transformLines, this);
@@ -43,25 +60,6 @@ export class ChartPreview {
     this._transformLines();
 
     this.slider.setScale(this.scale);
-  }
-
-  _createLayout() {
-    this.layout = {
-      svg: SVG.generateSVGBox(this.viewBox || [1, 1])
-    };
-
-    this.el.appendChild(this.layout.svg);
-  }
-
-  _createSlider() {
-    this.slider = new Slider(this.el, {
-      onChange: (scale) => {
-        this.events.next(previewEvents.UPDATE_BOUNDS, this._getBoundsByScale(scale));
-      },
-      onFinish: () => {
-        this.events.next(previewEvents.FINISH_INTERACTION);
-      }
-    });
   }
 
   _transformLines() {

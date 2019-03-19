@@ -10,14 +10,16 @@ import { ChartBox } from './components/ChartBox';
 export function startApp(data) {
   const container = document.getElementById('charts-container');
 
-  data.forEach(chartData => {
+  let charts = data.map(chartData => {
     const el = document.createElement('div');
     container.appendChild(el);
 
-    let chart = new ChartBox(el, chartData);
+    return new ChartBox(el, chartData);
+  });
 
-    setTimeout(() => {
-      chart.render();
-    }, 0);
+  charts.forEach(chart => chart.render());
+
+  window.addEventListener('resize', () => {
+    charts.forEach(chart => chart.resize());
   });
 }

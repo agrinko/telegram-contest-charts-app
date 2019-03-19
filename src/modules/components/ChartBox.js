@@ -1,4 +1,4 @@
-import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_POINTS_TO_DISPLAY, previewEvents} from '../config';
+import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_DATE_RANGE, previewEvents} from '../config';
 import {ChartPreview} from './ChartPreview';
 import {Line} from "./Line";
 import {Chart} from "./Chart";
@@ -12,15 +12,29 @@ export class ChartBox {
     this.title = 'Chart';
 
     this._prepareData(data);
-    this._createLayout();
   }
 
-  render() { // TODO: fix rendering when changing orientation
+  render() {
+    this.draw();
+    this.resize();
+
+    this.chart.renderData();
+    this.preview.renderData();
+    this.legend.renderData();
+  }
+
+  draw() {
+    this._createLayout();
+    this._createComponents();
+    this._connectChartWithPreview();
+
+    this.chart.draw();
+    this.preview.draw();
+  }
+
+  resize() {
     this.chart.setViewBox([this.layout.chart.clientWidth, this.layout.chart.clientHeight]);
     this.preview.setViewBox([this.layout.preview.clientWidth, this.layout.preview.clientHeight]);
-    this.chart.render();
-    this.preview.render();
-    this.legend.render();
   }
 
   _prepareData({columns, types, names, colors}) {
@@ -57,7 +71,6 @@ export class ChartBox {
        <div class="chart-legend"></div>`;
 
     const [title, chart, preview, legend] = this.el.children;
-    const initialBounds = this._getInitialBounds();
 
     this.layout = {
       title,
@@ -65,27 +78,22 @@ export class ChartBox {
       preview,
       legend
     };
-
-    this.preview = new ChartPreview(preview, this.lines, {
-      axis: this.axis,
-      bounds: initialBounds
-    });
-
-    this.chart = new Chart(chart, this.lines, {
-      axis: this.axis,
-      bounds: initialBounds
-    });
-
-    this.legend = new ChartLegend(legend, this.lines);
-
-    this._connectChartWithPreview();
   }
 
-  _getInitialBounds() {
-    const nPoints = Math.min(DEFAULT_POINTS_TO_DISPLAY, this.axis.values.length);
-    const pointsToDisplay = this.axis.values.slice(-nPoints);
+  _createComponents() {
+    const initialBounds = this._getInitialBounds();
 
-    return [pointsToDisplay[0], pointsToDisplay[pointsToDisplay.length - 1]];
+    this.preview = new ChartPreview(this.layout.preview, this.lines, {
+      axis: this.axis,
+      bounds: initialBounds
+    });
+
+    this.chart = new Chart(this.layout.chart, this.lines, {
+      axis: this.axis,
+      bounds: initialBounds
+    });
+
+    this.legend = new ChartLegend(this.layout.legend, this.lines);
   }
 
   _connectChartWithPreview() {
@@ -96,5 +104,12 @@ export class ChartBox {
     this.preview.events.subscribe(previewEvents.FINISH_INTERACTION, () => {
       this.chart.finishInteraction();
     });
+  }
+
+  _getInitialBounds() {
+    return [
+      Math.max(this.axis.min, this.axis.max - DEFAULT_DATE_RANGE),
+      this.axis.max
+    ];
   }
 }

@@ -17,20 +17,42 @@ export class Chart {
     this.axis = options.axis;
     this.bounds = options.bounds;
     this.linesGroup = new LinesGroup(lines, {
+      bounds: this.bounds,
+      padding: .1
+    });
+  }
+
+  draw() {
+    this.scaleContainer = DOM.elementFromString(
+      `<div class="scale-container">
+        <div class="x-axis"></div>
+        <div class="y-scale"></div>
+      </div>`
+    );
+
+    this.svgContainer = SVG.generateSVGBox(this.viewBox || [1, 1]);
+    this.xAxis = new Axis(this.scaleContainer.firstElementChild, this.axis.values, {
+      bottomMargin: xAxisMargin,
       bounds: this.bounds
     });
 
-    if (!window.lg) { // TODO: delete
-      window.lg = this.linesGroup;
-    }
-
-    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this._transformLines, this);
-
-    this._createLayout();
+    this.el.appendChild(this.scaleContainer);
+    this.el.appendChild(this.svgContainer);
   }
 
-  render() {
+  setViewBox([width, height]) {
+    height -= xAxisMargin;
+
+    this.viewBox = [width, height];
+    this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    this.linesGroup.setViewBox([width, height]);
+    this._transformLines();
+  }
+
+  renderData() {
     this.svgLines = {};
+
+    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_SCALE, this._transformLines, this);
 
     this.linesGroup.forEach(line => {
       this.svgLines[line.key] = SVG.createPolyline(line.svgPoints, line.color, {
@@ -54,14 +76,6 @@ export class Chart {
     this.xAxis.render(true);
   }
 
-  setViewBox([width, height]) {
-    height -= xAxisMargin;
-
-    this.viewBox = [width, height];
-    this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    this.linesGroup.setViewBox([width, height]);
-  }
-
   setBounds(bounds) {
     if (equals(bounds[0], this.bounds[0], TIME_COMPARISON_PRECISION) &&
         equals(bounds[1], this.bounds[1], TIME_COMPARISON_PRECISION))
@@ -81,28 +95,9 @@ export class Chart {
       let svgLine = this.svgLines[key];
       let key = svgLine.getAttribute(keyAttr);
       let matrix = this.linesGroup.getTransformationMatrix(key);
-      console.log(`${key}: [${matrix.join(', ')}]`)
 
       SVG.applyTransformationMatrix(svgLine, matrix);
     }
-  }
-
-  _createLayout() {
-    this.scaleContainer = DOM.elementFromString(
-      `<div class="scale-container">
-        <div class="x-axis"></div>
-        <div class="y-scale"></div>
-      </div>`
-    );
-
-    this.svgContainer = SVG.generateSVGBox(this.viewBox || [1, 1]);
-    this.xAxis = new Axis(this.scaleContainer.firstElementChild, this.axis.values, {
-      bottomMargin: xAxisMargin,
-      bounds: this.bounds
-    });
-
-    this.el.appendChild(this.scaleContainer);
-    this.el.appendChild(this.svgContainer);
   }
 
   _onToggleLine(line) {

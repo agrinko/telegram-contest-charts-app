@@ -12,7 +12,7 @@ export class ChartLegend {
     }));
   }
 
-  render() {
+  renderData() {
     this.values.forEach(item => {
       let button = elementFromString(
         `<div class="legend-button">
