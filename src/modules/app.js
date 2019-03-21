@@ -12,25 +12,8 @@ import {THEMES} from './config';
 const switcher = document.getElementById('theme-switcher');
 
 export function startApp(data) {
-  setTheme(THEMES[0]);
-
-  const container = document.getElementById('root');
-
-  let charts = data.map((chartData, i) => {
-    const el = document.createElement('div');
-    el.className = 'chart-box';
-    container.appendChild(el);
-
-
-    return new ChartBox(el, chartData, `Chart Title #${i + 1}`);
-  });
-
-  charts.forEach(chart => chart.render());
-
-
-  window.addEventListener('resize', () => {
-    charts.forEach(chart => chart.resize());
-  });
+  setTheme();
+  renderCharts(data);
 
   switcher.addEventListener('click', () => {
     setTheme(document.body.getAttribute('data-theme') === 'day' ? 'night' : 'day');
@@ -38,6 +21,48 @@ export function startApp(data) {
 }
 
 function setTheme(theme) {
+  if (!theme) {
+    let initialTheme;
+
+    if (window.localStorage) {
+      initialTheme = window.localStorage.getItem('css-theme');
+      theme = THEMES.includes(initialTheme) ? initialTheme : THEMES[0];
+    }
+  }
+
   document.body.setAttribute('data-theme', theme);
   switcher.firstElementChild.innerText = theme === THEMES[0] ? THEMES[1] : THEMES[0];
+
+  if (window.localStorage)
+    window.localStorage.setItem('css-theme', theme);
+}
+
+function renderCharts(data) {
+  const container = document.getElementById('root');
+
+  let charts = data.map((chartData, i) => {
+    return new ChartBox(container, chartData, `Chart Title #${i + 1}`);
+  });
+
+  setTimeout(() => {
+    charts.forEach(chart => chart.render());
+
+    window.addEventListener('resize', () => {
+      charts.forEach(chart => chart.resize());
+    });
+
+    stopLauncher();
+  }, 0);
+
+}
+
+function stopLauncher() {
+  let launcher = document.getElementById('launcher');
+
+  launcher.classList.add('done');
+
+  setTimeout(() => {
+    launcher.parentElement.removeChild(launcher);
+    document.getElementsByClassName('theme-switcher')[0].classList.add('fly-in');
+  }, 1000);
 }

@@ -6,8 +6,8 @@ import {ChartLegend} from "./ChartLegend";
 
 
 export class ChartBox {
-  constructor(element, data, title) {
-    this.el = element;
+  constructor(container, data, title) {
+    this.container = container;
     this.title = title;
 
     this._prepareData(data);
@@ -26,10 +26,13 @@ export class ChartBox {
     this._createComponents();
     this._connectChartWithPreview();
 
+    this.container.appendChild(this.el);
+
     this.resize();
 
     this.chart.draw();
     this.preview.draw();
+
   }
 
   resize() {
@@ -63,6 +66,8 @@ export class ChartBox {
   }
 
   _createLayout() {
+    this.el = document.createElement('div');
+    this.el.className = 'chart-box';
     this.el.innerHTML =
       `<h2 class="chart-title">${this.title}</h2>
        <div class="chart"></div>

@@ -1,0 +1,21 @@
+# TODO:
+
+- proper layout for all devices
+- //launcher
+- chart legend
+- fonts & sizes
+- resizing & rotating
+- hovering data points
+- improve drag & drop
+- allow zooming chart preview
+- visual indicators on touchstart
+- y-scale
+- x-scale
+- custom transitions: slower vertical, faster horizontal
+- transparency gradient on the edges of chart
+- configs & info
+- testing on mobile emulators
+- deploy
+- some unit tests
+- tslint
+- meta viewport (scale, width)
