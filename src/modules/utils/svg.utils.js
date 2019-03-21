@@ -16,18 +16,6 @@ export function draw(svgContainer, element) {
   svgContainer.appendChild(element);
 }
 
-/**point[0]
- * Create SVG container element
- * @param {ViewBox} viewBox
- * @returns {SVGElement}
- */
-export function generateSVGBox(viewBox) {
-  return elementFromString(
-    `<svg viewBox="0 0 ${viewBox[0]} ${viewBox[1]}"
-                xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>`
-  );
-}
-
 /**
  * Create SVG <polyline> element
  * @param {string} points

@@ -3,9 +3,9 @@ export const seriesTypes = {
   AXIS: 'x'
 };
 
-export const REFERENCE_VIEW_BOX = [100, 100];
+export const CHART_PREVIEW_PADDING = .05;
 
-export const CHART_PREVIEW_PADDING = .1;
+export const ZERO_BASED_Y_AXIS = false;
 
 export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
@@ -19,7 +19,7 @@ export const DATE_FORMAT = {
  * Default date range to scale to initially (in milliseconds)
  * @type {number}
  */
-export const DEFAULT_DATE_RANGE = 33 * ONE_DAY;
+export const DEFAULT_DATE_RANGE = 35 * ONE_DAY;
 
 /**
  * Timestamps that differ by less than this constant are considered equal
@@ -39,10 +39,5 @@ export const lineEvents = {
 };
 
 export const linesGroupEvents = {
-  UPDATE_SCALE: 'update-scale'
-};
-
-export const previewEvents = {
-  UPDATE_BOUNDS: 'update-bounds',
-  FINISH_INTERACTION: 'finish-interaction'
+  UPDATE_RANGE: 'update-y-range'
 };

@@ -96,6 +96,7 @@
 
       .chart {
         position: relative;
+        margin-bottom: 40px;
       }
 
       .chart .scale-container {
@@ -106,27 +107,29 @@
         left: 0;
         pointer-events: none;
       }
+      .chart .scale-container .y-scale {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+      .grid-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, .05);
+        color: grey;
+        padding-bottom: 5px;
+        font-size: small;
+      }
       .x-axis {
         position: absolute;
-        bottom: 0;
+        top: 100%;
         left: 0;
         right: 0;
       }
-      .x-axis > .axis-line {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        border-bottom: 1px solid lightgrey;
-      }
-      .x-axis > .axis-labels {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-      }
-      .axis-labels > .label {
+      .x-axis > .label {
         position: absolute;
         top: 10px;
         left: 0;
@@ -145,7 +148,8 @@
         vector-effect: non-scaling-stroke;
         stroke-width: 1.4px;
         fill: none;
-        transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
+        transition: transform 100ms ease-in-out, opacity 200ms ease-in-out;
+        transform-origin: left top;
       }
 
       svg polyline.disabled {

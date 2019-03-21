@@ -1,22 +1,20 @@
-import {seriesTypes, REFERENCE_VIEW_BOX, DEFAULT_DATE_RANGE, previewEvents} from '../config';
-import {ChartPreview} from './ChartPreview';
-import {Line} from "./Line";
-import {Chart} from "./Chart";
+import {seriesTypes, DEFAULT_DATE_RANGE} from '../config';
+import {ChartPreview} from './ChartPreview/ChartPreview';
+import {Line} from "../tools/Line";
+import {Chart} from "./Chart/Chart";
 import {ChartLegend} from "./ChartLegend";
 
 
 export class ChartBox {
-  constructor(element, data) {
+  constructor(element, data, title) {
     this.el = element;
-    this.el.className = 'chart-box';
-    this.title = 'Chart';
+    this.title = title;
 
     this._prepareData(data);
   }
 
   render() {
     this.draw();
-    this.resize();
 
     this.chart.renderData();
     this.preview.renderData();
@@ -27,6 +25,8 @@ export class ChartBox {
     this._createLayout();
     this._createComponents();
     this._connectChartWithPreview();
+
+    this.resize();
 
     this.chart.draw();
     this.preview.draw();
@@ -57,8 +57,7 @@ export class ChartBox {
           key,
           axis: this.axis,
           name: names[key],
-          color: colors[key],
-          viewBox: REFERENCE_VIEW_BOX
+          color: colors[key]
         }));
     });
   }
@@ -85,7 +84,7 @@ export class ChartBox {
 
     this.preview = new ChartPreview(this.layout.preview, this.lines, {
       axis: this.axis,
-      bounds: initialBounds
+      initialBounds: initialBounds
     });
 
     this.chart = new Chart(this.layout.chart, this.lines, {
@@ -97,11 +96,11 @@ export class ChartBox {
   }
 
   _connectChartWithPreview() {
-    this.preview.events.subscribe(previewEvents.UPDATE_BOUNDS, (bounds) => {
+    this.preview.onUpdateBounds((bounds) => {
       this.chart.setBounds(bounds);
     });
 
-    this.preview.events.subscribe(previewEvents.FINISH_INTERACTION, () => {
+    this.preview.onFinishInteraction(() => {
       this.chart.finishInteraction();
     });
   }

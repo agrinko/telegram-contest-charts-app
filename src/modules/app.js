@@ -10,11 +10,12 @@ import { ChartBox } from './components/ChartBox';
 export function startApp(data) {
   const container = document.getElementById('charts-container');
 
-  let charts = data.map(chartData => {
+  let charts = data.map((chartData, i) => {
     const el = document.createElement('div');
+    el.className = 'chart-box';
     container.appendChild(el);
 
-    return new ChartBox(el, chartData);
+    return new ChartBox(el, chartData, `Chart #${i + 1}`);
   });
 
   charts.forEach(chart => chart.render());

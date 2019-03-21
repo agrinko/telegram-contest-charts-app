@@ -1,4 +1,4 @@
-import * as DOM from "../utils/dom.utils";
+import * as DOM from "../../utils/dom.utils";
 
 
 export class Slider {

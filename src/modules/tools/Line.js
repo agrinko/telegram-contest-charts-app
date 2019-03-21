@@ -1,6 +1,6 @@
-import {findClosestIndex, getRange} from "../utils/array.utils";
+import {getRange} from "../utils/array.utils";
 import * as SVG from '../utils/svg.utils';
-import {Events} from "../utils/Events";
+import {Events} from "./Events";
 import {lineEvents} from "../config";
 
 
@@ -12,7 +12,6 @@ export class Line {
    *  key: string,
    *  color: string,
    *  axis: Axis,
-   *  viewBox: ViewBox,
    *  enabled?: boolean
    * }} options
    */
@@ -22,11 +21,25 @@ export class Line {
     this.key = options.key;
     this.axis = options.axis;
     this.name = options.name;
-    this.viewBox = options.viewBox;
     this.color = options.color;
-    this.range = getRange(values);
     this.enabled = options.enabled || true;
     this._cachedMinMax = {};
+
+    let range = getRange(values);
+    this.minX = this.axis.values[0];
+    this.maxX = this.axis.values[this.axis.values.length - 1];
+    this.minY = range[0];
+    this.maxY = range[1];
+    this.viewBox = [10000, 1000];
+
+    const scaleX = this.viewBox[0] / (this.maxX - this.minX);
+    const scaleY = this.viewBox[1] / (this.maxY - this.minY);
+
+    this.transformationMatrix = [
+      scaleX, 0,
+      0, scaleY,
+      -scaleX * this.minX, this.viewBox[1] - scaleY * this.minY
+    ];
 
     this.svgPoints = SVG.toPolylinePoints(
       this._normalizeToViewBox(),
@@ -34,25 +47,8 @@ export class Line {
     );
   }
 
-  get maxX() {
-    return this.axis.values[this.axis.values.length - 1];
-  }
-
-  get minX() {
-    return this.axis.values[0];
-  }
-
-  get maxY() {
-    return this.range[1];
-  }
-
-  get minY() {
-    return this.range[0];
-  }
-
   toggle() {
     this.enabled = !this.enabled;
-
     this.events.next(lineEvents.TOGGLE, this);
   }
 
@@ -75,13 +71,13 @@ export class Line {
   _normalizeToViewBox() {
     const [width, height] = this.viewBox;
     const xValues = this.axis.values,
-          y = this.values;
+      y = this.values;
     const minX = this.minX,
-          maxX = this.maxX,
-          minY = this.minY,
-          maxY = this.maxY;
+      maxX = this.maxX,
+      minY = this.minY,
+      maxY = this.maxY;
     const dX = maxX - minX,
-          dY = maxY - minY;
+      dY = maxY - minY;
 
     return xValues.map((x, i) => [
       (x - minX)/dX * width,
