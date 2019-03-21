@@ -2,7 +2,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 import { uglify } from 'rollup-plugin-uglify';
 import filesize from 'rollup-plugin-filesize';
-import copy from 'rollup-plugin-copy';
+import json from 'rollup-plugin-json';
 
 
 export default args => ({
@@ -13,12 +13,13 @@ export default args => ({
     sourcemap: true
   },
   plugins: [
+    json({
+      compact: true,
+      namedExports: false
+    }),
     resolve(),
     babel(),
     uglify(),
-    copy({
-      'src/styles/styles.css': 'dist/styles.css'
-    }),
     filesize()
   ]
 });

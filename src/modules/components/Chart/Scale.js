@@ -17,7 +17,7 @@ export class Scale {
     let step = (max - min) / (nRows + 0.5);
 
     for (let i = min; i < max; i += step) {
-      html += `<div class="grid-line" style="bottom: ${(i - min) / (max - min) * 100}%">${Math.round(i)}</div>`
+      html += `<div class="grid-line ${i === min ? 'edge' : ''}" style="bottom: ${(i - min) / (max - min) * 100}%">${Math.round(i)}</div>`
     }
 
     this.el.innerHTML = html;

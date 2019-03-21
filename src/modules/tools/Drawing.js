@@ -20,7 +20,8 @@ export class Drawing {
     this.viewBox = [width, height];
     this.padding = height * this.paddingRel;
     this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height - 2 * this.padding}`);
-    this.svgContainer.style.marginTop = this.padding + 'px';
+    this.svgContainer.style.marginTop = this.paddingRel + '%';
+    this._transformLines();
   }
 
   appendTo(el) {

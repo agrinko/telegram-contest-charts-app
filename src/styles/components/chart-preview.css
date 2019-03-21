@@ -1,0 +1,71 @@
+.chart-preview {
+    position: relative;
+    height: 50px;
+    margin: 15px 0;
+    width: var(--chart-width);
+    user-select: none;
+
+    @media (max-height: 350px) {
+        height: 35px;
+    }
+
+    & svg {
+        position: relative;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    & .sliding-window {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        border: 2px solid var(--slider-color, #cccccc);
+        border-width: 1px 6px;
+        cursor: pointer;
+        transition: left 60ms linear, width 60ms linear, border-color var(--theme-transition-duration) ease-in-out;
+        z-index: 0;
+        opacity: .5;
+
+        & .grip {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: -16px;
+            width: 24px;
+            cursor: ew-resize;
+
+            &.right-grip {
+                left: auto;
+                right: -16px;
+            }
+        }
+    }
+
+    & .cover {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        background: var(--cover-color, #F3F8FB);
+        z-index: 2;
+        transition: left 60ms linear, width 60ms linear, background var(--theme-transition-duration) ease-in-out;
+        pointer-events: none;
+        opacity: .8;
+
+        &.cover-right {
+            left: auto;
+            right: 0;
+        }
+    }
+
+    @media (--tablet) and (min-height: 350px) {
+        height: 60px;
+    }
+
+    @media (--wide) {
+        height: 80px;
+        margin: 25px 0;
+    }
+}

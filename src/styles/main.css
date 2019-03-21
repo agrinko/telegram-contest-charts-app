@@ -1,0 +1,62 @@
+@import "reset.css";
+@import "variables.css";
+@import "themes/day.theme.css";
+@import "themes/night.theme.css";
+@import "components";
+
+
+body {
+    padding: 3vh 3vmin;
+    transition: background var(--theme-transition-duration) ease-in-out;
+    background: var(--background, white);
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.theme-switcher {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--footer-height);
+    line-height: var(--footer-height);
+    text-align: center;
+    background: var(--background);
+    z-index: 1000;
+    transition: background var(--theme-transition-duration) ease-in-out;
+    opacity: .9;
+
+    & > a {
+        color: var(--link-color, deepskyblue);
+        transition: opacity 250ms ease-in-out, color var(--theme-transition-duration) ease-in-out;
+        font-size: large;
+        text-decoration: none;
+
+        &:hover,
+        &:active {
+            opacity: .6;
+        }
+
+        & > span {
+            text-transform: capitalize;
+        }
+    }
+}
+
+
+svg polyline {
+    vector-effect: non-scaling-stroke;
+    stroke-width: 1.4px;
+    fill: none;
+    transition: transform 100ms ease-in-out, opacity 200ms ease-in-out;
+    transform-origin: left top;
+}
+
+svg polyline.disabled {
+    opacity: 0;
+}
+
+@media (--tablet) {
+    svg polyline {
+        stroke-width: 1.6px;
+    }
+}

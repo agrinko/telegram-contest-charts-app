@@ -1,0 +1,23 @@
+@custom-media --tablet (min-width: 870px);
+@custom-media --wide (min-width: 1400px);
+@custom-media --x-wide (min-width: 1600px);
+@custom-media --high (min-height: 600px) and (max-width: 1400px);
+@custom-media --landscape-mobile (orientation: landscape) and (max-height: 800px);
+
+:root {
+    --theme-transition-duration: 100ms;
+    --footer-height: 8vh;
+    --chart-box-height: 100vh;
+    --chart-title-margin: 4vh;
+    --chart-width: 100%;
+    --legend-width: 100%;
+
+    @media (--high) {
+        --chart-title-margin: 8vh;
+    }
+
+    @media (--landscape-mobile) {
+        --chart-width: 75%;
+        --legend-width: 25%;
+    }
+}

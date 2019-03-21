@@ -1,0 +1,10 @@
+[data-theme="night"] {
+    --background: #242f3e;
+    --text-color: white;
+    --cover-color: #1F2A37;
+    --slider-color: #5C7C98;
+    --grid-color: rgba(162, 182, 200, .045);
+    --grid-color-brighter: rgba(162, 182, 200, .1);
+    --grid-label-color: #546778;
+    --link-color: #36A8F1;
+}

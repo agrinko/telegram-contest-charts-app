@@ -68,5 +68,7 @@ export function elementFromString(html) {
  * @param {TransformationMatrix} matrix
  */
 export function applyTransformationMatrix(el, matrix) {
+  el.style.mozTransform = `matrix(${matrix.join(',')})`;
+  el.style.webkitTransform = `matrix(${matrix.join(',')})`;
   el.style.transform = `matrix(${matrix.join(',')})`;
 }

@@ -1,0 +1,33 @@
+@import "chart.css";
+@import "chart-preview.css";
+@import "chart-legend.css";
+
+
+#charts-container {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.chart-box {
+    position: relative;
+    height: var(--chart-box-height);
+    flex: 1 1 100%;
+    overflow: hidden;
+
+    & .chart-title {
+        margin-bottom: var(--chart-title-margin);
+        padding-left: 10px;
+        font-size: 1.4em;
+        font-weight: bold;
+        color: var(--text-color, black);
+        transition: color var(--theme-transition-duration) ease-in-out;
+
+        @media (max-height: 400px) {
+            font-size: 1em;
+        }
+    }
+
+    @media (--wide) {
+        margin-bottom: 100px;
+    }
+}

@@ -1,0 +1,75 @@
+.chart {
+    position: relative;
+    margin-bottom: 40px;
+    width: var(--chart-width);
+    min-height: 140px;
+    max-height: 470px;
+    height: 50vh;
+    user-select: none;
+
+    @media (--wide) {
+        max-height: 550px;
+        height: 60vh;
+        margin-bottom: 60px;
+    }
+
+    & .scale-container {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        pointer-events: none;
+
+        & .y-scale {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        & .x-axis {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+        & .x-axis > .label {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: var(--grid-label-color, grey);
+            font-size: 12px;
+            transition: left 200ms ease-in-out, color var(--theme-transition-duration) ease-in-out;
+        }
+    }
+
+
+    & .grid-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        border-bottom: 1px solid var(--grid-color, rgba(128, 128, 128, .15));
+        color: var(--grid-label-color, grey);
+        padding-bottom: 5px;
+        font-size: small;
+        transition: var(--theme-transition-duration) ease-in-out;
+        transition-property: color, border-color;
+
+        &.edge {
+            border-color: var(--grid-color-brighter, rgba(128, 128, 128, .2));
+        }
+    }
+
+    & svg polyline {
+        stroke-width: 2.2px;
+
+        @media (--tablet) {
+            stroke-width: 3px;
+        }
+    }
+
+}

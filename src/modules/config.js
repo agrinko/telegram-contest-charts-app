@@ -3,6 +3,8 @@ export const seriesTypes = {
   AXIS: 'x'
 };
 
+export const THEMES = ['day', 'night'];
+
 export const CHART_PREVIEW_PADDING = .05;
 
 export const ZERO_BASED_Y_AXIS = false;
