@@ -51,9 +51,6 @@ export class LinesGroup {
    * @returns {TransformationMatrix}
    */
   getTransformationMatrix(line, viewBox) {
-    if (typeof line === 'string')
-      line = this.lines.find(l => l.key === line);
-
     const scaleBasis = [ // transformation from line's view box to the group's view box
       viewBox[0] / line.viewBox[0],
       viewBox[1] / line.viewBox[1]

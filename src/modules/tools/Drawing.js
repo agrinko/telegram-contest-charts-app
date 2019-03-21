@@ -4,8 +4,6 @@ import {findClosestIndex} from "../utils/array.utils";
 import {format} from "../utils/date.utils";
 
 
-const keyAttr = 'data-key';
-
 export class Drawing {
   constructor([width, height], options) {
     this.paddingRel = options && options.padding || 0;
@@ -36,7 +34,7 @@ export class Drawing {
 
     this.linesGroup.forEach(line => {
       this.svgLines[line.key] = SVG.createPolyline(line.svgPoints, line.color, {
-        [keyAttr]: line.key
+        //[keyAttr]: line.key
       });
 
       // TODO: delete this
@@ -60,14 +58,12 @@ export class Drawing {
   }
 
   _transformLines() {
-    for (let key in this.svgLines) {
-      let svgLine = this.svgLines[key];
-      let key = svgLine.getAttribute(keyAttr);
-      let matrix = this.linesGroup.getTransformationMatrix(key, this.viewBox);
-      console.log(matrix)
+    this.linesGroup.forEach(line => {
+      let svgLine = this.svgLines[line.key];
+      let matrix = this.linesGroup.getTransformationMatrix(line, this.viewBox);
 
       SVG.applyTransformationMatrix(svgLine, matrix);
-    }
+    });
   }
 
   _onToggleLine(line) {

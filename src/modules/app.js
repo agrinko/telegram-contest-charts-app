@@ -15,6 +15,7 @@ export function startApp(data) {
     el.className = 'chart-box';
     container.appendChild(el);
 
+
     return new ChartBox(el, chartData, `Chart #${i + 1}`);
   });
 
