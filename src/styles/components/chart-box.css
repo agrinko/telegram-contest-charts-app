@@ -10,7 +10,6 @@
     height: 100vh;
     flex-flow: column wrap;
     justify-content: flex-start;
-    align-content: flex-start;
     align-items: stretch;
     padding: 3vh 3vmin var(--footer-height);
     overflow-x: hidden;
@@ -34,9 +33,11 @@
     }
 
     & .chart-with-preview {
+        position: relative;
         flex: 2 1 50%;
-        width: 100%;
         max-height: 150vw;
+        margin: 0 -3vmin;
+        padding: 3vmin 3vmin 0 3vmin;
         display: flex;
         flex-flow: column nowrap;
         justify-content: flex-start;
@@ -48,6 +49,10 @@
             max-height: 100vmin;
             margin-bottom: 40px;
 
+            & svg {
+                overflow: visible;
+            }
+
             @media (--low) {
                 margin-bottom: 30px;
             }
@@ -55,6 +60,20 @@
 
         & .chart-preview {
             flex: 1 1 10vmin;
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            background: linear-gradient(to bottom, var(--background), transparent 3vmin),
+                        linear-gradient(to right, var(--background), transparent 3vmin),
+                        linear-gradient(to left, var(--background), transparent 3vmin);
+            pointer-events: none;
         }
 
         @media (--wide) {
@@ -67,6 +86,8 @@
     }
 
     @media (--narrow-landscape) {
+        align-content: flex-start;
+
         & .chart-with-preview {
             flex-basis: 80vh;
             width: 80%;
@@ -78,4 +99,8 @@
             margin-top: 5vh;
         }
     }
+}
+
+body.changing-theme .chart-box .chart-with-preview::after {
+    display: none; /* hide transparency gradient because we can't animate gradient smoothly */
 }

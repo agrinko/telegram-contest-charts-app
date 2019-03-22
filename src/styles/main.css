@@ -20,13 +20,13 @@ svg polyline {
     vector-effect: non-scaling-stroke;
     stroke-width: 1.4px;
     fill: none;
-    transition: opacity 200ms ease-in-out, transform 150ms linear;
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
     transform-origin: left top;
 
     &.disabled {
         opacity: 0;
         visibility: hidden;
-        transition: opacity 200ms ease-in-out, transform 150ms ease-in-out, visibility 0ms 200ms;
+        transition: opacity 300ms ease-in-out, transform 300ms ease-in-out, visibility 0ms 300ms;
     }
 }
 

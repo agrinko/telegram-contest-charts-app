@@ -1,6 +1,5 @@
 # TODO:
 
-- transparency gradient on the edges of chart
 - resizing & rotating
 - hovering data points
 - visual indicators on touchstart

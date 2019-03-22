@@ -15,8 +15,17 @@ export function startApp(data) {
   setTheme();
   renderCharts(data);
 
+  let prevTimeout;
+
   switcher.addEventListener('click', () => {
+    document.body.classList.add('changing-theme');
     setTheme(document.body.getAttribute('data-theme') === 'day' ? 'night' : 'day');
+
+    clearTimeout(prevTimeout);
+
+    prevTimeout = setTimeout(() => {
+      document.body.classList.remove('changing-theme');
+    }, 200); // TODO: magic number
   });
 }
 
