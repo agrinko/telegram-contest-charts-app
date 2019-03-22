@@ -53,7 +53,7 @@
         }
     }
 
-    & svg path {
+    & svg polyline {
         stroke-width: 2.2px;
 
         @media (--tablet) {

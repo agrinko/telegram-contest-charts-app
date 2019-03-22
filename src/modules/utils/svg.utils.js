@@ -1,15 +1,15 @@
 import { round } from "./math.utils";
 
 /**
- * Convert array of Point objects into a string for SVG <path> element points
+ * Convert array of Point objects into a string for SVG <polyline> element points
  * @param {Array<Point>} points
  * @param {ViewBox} viewBox
  * @returns string
  */
-export function toPathPoints(points, viewBox) {
-  return 'M' + points.map(([x, y]) => {
+export function toPolylinePoints(points, viewBox) {
+  return points.map(([x, y]) => {
     return `${round(x, 2)},${round(viewBox[1] - y, 2)}`;
-  }).join(' L');
+  }).join(' ');
 }
 
 export function draw(svgContainer, element) {
@@ -17,15 +17,36 @@ export function draw(svgContainer, element) {
 }
 
 /**
- * Create SVG <path> element
+ * Create SVG <polyline> element
  * @param {string} points
  * @param {string?} color
+ * @param {Object?} attributes
  * @returns {SVGElement}
  */
-export function createPath(points, color = '#000000') {
+export function createPolyline(points, color = '#000000', attributes = {}) {
   let el = elementFromString(
-    `<path d="${points}" stroke="${color}" vector-effect="non-scaling-stroke"/>`
+    `<polyline points="${points}" stroke="${color}"/>`
   );
+
+  for (let key in attributes)
+    el.setAttribute(key, attributes[key]);
+
+  return el;
+}
+
+/**
+ * Create SVG <line> element
+ * @param {string} points
+ * @param {Object?} attributes
+ * @returns {SVGElement}
+ */
+export function createLine(points, attributes = {}) {
+  let el = elementFromString(
+    `<line x1="${points[0][0]}" y1="${points[0][1]}" x2="${points[1][0]}" y2="${points[1][1]}" />`
+  );
+
+  for (let key in attributes)
+    el.setAttribute(key, attributes[key]);
 
   return el;
 }

@@ -32,8 +32,11 @@ export class Drawing {
     this.linesGroup = linesGroup;
     this.svgLines = {};
 
+
     this.linesGroup.forEach(line => {
-      this.svgLines[line.key] = SVG.createPath(line.svgPoints, line.color);
+      this.svgLines[line.key] = SVG.createPolyline(line.svgPoints, line.color, {
+        //[keyAttr]: line.key
+      });
 
       // TODO: delete this
       this.svgLines[line.key].addEventListener('mouseover', (event) => {
