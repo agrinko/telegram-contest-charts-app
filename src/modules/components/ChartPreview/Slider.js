@@ -7,7 +7,7 @@ export class Slider {
     this.onChange = options.onChange;
     this.onFinish = options.onFinish;
     this.scale = [0, 1];
-    this.minScaleWidth = options.minScaleWidth || 0.01;
+    this.minScaleWidth = Math.max(options.minScaleWidth, 0.04);
   }
 
   setScale(scale) {
@@ -46,64 +46,112 @@ export class Slider {
   }
 
   _makeDraggable() {
-    let bounds, deltaX, mode;
+    let bounds;
+    let registeredTouches = {};
+
+    let output = document.getElementById('output');
 
     let onStart = (e) => {
       bounds = this.parent.getBoundingClientRect();
       this.parent.classList.add('moving');
 
       let sliderBounds = this.slidingWindow.getBoundingClientRect();
-      let clientX = e.clientX || e.targetTouches && e.targetTouches[0].pageX || 0;
+      let touchDescriptor = e.changedTouches && e.changedTouches[0];
+      let target = touchDescriptor ? touchDescriptor.target : e.target;
+      let id = touchDescriptor ? touchDescriptor.identifier : 'mouse';
+      let clientX = touchDescriptor && touchDescriptor.clientX || e.clientX;
+      let deltaLeft = (clientX - sliderBounds.left) / bounds.width || 0;
+      let mode = 'move';
 
-      deltaX = clientX - sliderBounds.left;
-
-      if (e.target.classList.contains('left-grip'))
+      if (target.classList.contains('left-grip'))
         mode = 'left';
-      else if (e.target.classList.contains('right-grip'))
+      else if (target.classList.contains('right-grip'))
         mode = 'right';
-      else
-        mode = 'move';
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('mouseup', stopDD);
-      document.addEventListener('touchend', stopDD);
+      for (let id in registeredTouches) {
+        if (registeredTouches[id].mode === mode)
+          return; // ignore touch with similar mode
+
+        // transform 'move' touch (either old or new one) into 'right' or 'left' mode (because 'move' mode does not work with other modes)
+        // reset deltaLeft to move slider to the new position of touch
+        if (registeredTouches[id].mode === 'move') {
+          registeredTouches[id].mode = mode === 'left' ? 'right' : 'left';
+          registeredTouches[id].deltaLeft = 0;
+        } else if (mode === 'move') {
+          mode = registeredTouches[id].mode === 'left' ? 'right' : 'left';
+          deltaLeft = 0;
+        }
+      }
+
+      if (Object.keys(registeredTouches).length === 0) { // only for the first touch
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', onMove, {passive: false}); // passive: false to prevent page scrolling
+        document.addEventListener('mouseup', stopDD);
+        document.addEventListener('touchend', stopDD);
+      }
+
+      registeredTouches[id] = {
+        deltaLeft,
+        mode,
+        touchLeft: (clientX - bounds.left) / bounds.width
+      };
     };
 
     let onMove = (e) => {
-      let clientX = e.clientX || e.targetTouches && e.targetTouches[0].pageX || 0;
       let [left, right] = this.scale;
       let width = right - left;
+      let changedTouches = e.changedTouches || [{ identifier: 'mouse', clientX: e.clientX }];
+      let anyUpdates = false;
 
-      if (mode === 'right') {
-        right = Math.min(1, (clientX - bounds.left) / bounds.width);
-        right = Math.max(left + this.minScaleWidth, right);
-      } else if (mode === 'left') {
-        left = Math.max(0, (clientX - deltaX - bounds.left) / bounds.width);
-        left = Math.min(right - this.minScaleWidth, left);
-      } else {
-        left = Math.max(0, (clientX - deltaX - bounds.left) / bounds.width);
-        left = Math.min(1 - width, left);
-        right = Math.min(1, left + width);
+      let processTouch = ({ deltaLeft, mode, touchLeft}) => {
+        if (mode === 'right') {
+          right = Math.min(1, touchLeft);
+          right = Math.max(left + this.minScaleWidth, right);
+        } else if (mode === 'left') {
+          left = Math.max(0, touchLeft - deltaLeft);
+          left = Math.min(right - this.minScaleWidth, left);
+        } else {
+          left = Math.max(0, touchLeft - deltaLeft);
+          left = Math.min(1 - width, left);
+          right = Math.min(1, left + width);
+        }
+      };
+
+      for (let touch of changedTouches) {
+        let registeredTouch = registeredTouches[touch.identifier];
+
+        if (registeredTouch) {
+          let touchLeft = (touch.clientX - bounds.left) / bounds.width;
+
+          if (registeredTouch.touchLeft !== touchLeft) {
+            registeredTouch.touchLeft = touchLeft; // remember new left coordinate for this touch
+            processTouch(registeredTouch);
+            anyUpdates = true;
+          }
+        }
       }
 
-      this.scale = [left, right];
-      this._updateSlidingWindow();
+      if (anyUpdates) {
+        this.scale = [left, right];
+        this._updateSlidingWindow();
 
-      this.onChange(this.scale);
+        this.onChange(this.scale);
+      }
 
       e.preventDefault();
     };
 
-    let stopDD = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('mouseup', stopDD);
-      document.removeEventListener('touchend', stopDD);
+    let stopDD = (e) => {
+      delete registeredTouches[e.changedTouches ? e.changedTouches[0].identifier : 'mouse'];
+      if (Object.keys(registeredTouches).length === 0) {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('mouseup', stopDD);
+        document.removeEventListener('touchend', stopDD);
 
-      this.parent.classList.remove('moving');
-
-      this.onFinish();
+        this.parent.classList.remove('moving');
+        this.onFinish();
+      }
     };
 
     this.slidingWindow.addEventListener('mousedown', onStart);

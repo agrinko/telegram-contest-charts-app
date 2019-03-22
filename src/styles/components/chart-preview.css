@@ -27,13 +27,13 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            left: -16px;
-            width: 24px;
+            left: -20px;
+            width: 28px;
             cursor: ew-resize;
 
             &.right-grip {
                 left: auto;
-                right: -16px;
+                right: -20px;
             }
         }
     }
