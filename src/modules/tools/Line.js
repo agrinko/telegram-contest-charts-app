@@ -41,7 +41,7 @@ export class Line {
       -scaleX * this.minX, this.viewBox[1] - scaleY * this.minY
     ];
 
-    this.svgPoints = SVG.toPolylinePoints(
+    this.svgPoints = SVG.toPathPoints(
       this._normalizeToViewBox(),
       this.viewBox
     );

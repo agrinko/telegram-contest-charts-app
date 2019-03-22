@@ -20,7 +20,7 @@ body {
 
 }
 
-svg polyline {
+svg path {
     vector-effect: non-scaling-stroke;
     stroke-width: 1.4px;
     fill: none;
@@ -28,12 +28,12 @@ svg polyline {
     transform-origin: left top;
 }
 
-svg polyline.disabled {
+svg path.disabled {
     opacity: 0;
 }
 
 @media (--tablet) {
-    svg polyline {
+    svg path {
         stroke-width: 1.6px;
     }
 }
