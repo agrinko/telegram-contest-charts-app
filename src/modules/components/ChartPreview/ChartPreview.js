@@ -1,7 +1,8 @@
 import {LinesGroup} from "../../tools/LinesGroup";
 import {Slider} from "./Slider";
 import {Drawing} from "../../tools/Drawing";
-import {CHART_PREVIEW_PADDING} from "../../config";
+import {CHART_PREVIEW_PADDING, MIN_DATE_RANGE} from "../../config";
+import {throttle} from "../../utils/common.utils";
 
 
 export class ChartPreview {
@@ -10,6 +11,8 @@ export class ChartPreview {
     this.axis = options.axis;
     this.initialBounds = options.initialBounds;
     this.linesGroup = new LinesGroup(lines, {});
+
+    this._updateScaleDefferred = throttle(this._updateScale, 30);
   }
 
   setViewBox([width, height]) {
@@ -26,8 +29,9 @@ export class ChartPreview {
     this.drawing.appendTo(this.el);
 
     this.slider = new Slider(this.el, {
+      minScaleWidth: MIN_DATE_RANGE / (this.axis.max - this.axis.min),
       onChange: (scale) => {
-        this.onUpdateBoundsCallback(this._getBoundsByScale(scale));
+        this._updateScaleDefferred(scale);
       },
       onFinish: () => {
         this.onFinishInteractionCallback();
@@ -48,6 +52,10 @@ export class ChartPreview {
 
   onFinishInteraction(cb) {
     this.onFinishInteractionCallback = cb;
+  }
+
+  _updateScale(scale) {
+    this.onUpdateBoundsCallback(this._getBoundsByScale(scale))
   }
 
   _getBoundsByScale(scale) {

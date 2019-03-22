@@ -2,7 +2,7 @@
 
 - // proper layout for all devices
 - // launcher
-- chart legend
+- // chart legend
 - fonts & sizes
 - resizing & rotating
 - hovering data points

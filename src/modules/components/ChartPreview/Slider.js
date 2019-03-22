@@ -7,6 +7,7 @@ export class Slider {
     this.onChange = options.onChange;
     this.onFinish = options.onFinish;
     this.scale = [0, 1];
+    this.minScaleWidth = options.minScaleWidth || 0.01;
   }
 
   setScale(scale) {
@@ -14,7 +15,7 @@ export class Slider {
       this._render();
 
     this.scale = scale;
-    this._renderSlider();
+    this._updateSlidingWindow();
   }
   
   _render() {
@@ -32,27 +33,29 @@ export class Slider {
     this.parent.appendChild(this.slidingWindow);
 
     this.rendered = true;
+
+    this._makeDraggable();
   }
 
-  _renderSlider() { // TODO: refactor! avoid assigning similar event listeners
-    // TODO: add zooming gesture! (moving left and right with 2 fingers)
-    const bounds = this.parent.getBoundingClientRect();
+  _updateSlidingWindow() {
+    this.slidingWindow.style.left = this.scale[0] * 100 + '%';
+    this.slidingWindow.style.width = (this.scale[1] - this.scale[0]) * 100 + '%';
 
-    let prevLeft = bounds.width * this.scale[0],
-      prevRight = bounds.width * this.scale[1];
-    this.slidingWindow.style.left = prevLeft/bounds.width * 100 + '%';
-    this.slidingWindow.style.width = (prevRight - prevLeft)/bounds.width * 100 + '%';
+    this.coverLeft.style.width = this.scale[0] * 100 + '%';
+    this.coverRight.style.left = this.scale[1] * 100 + '%';
+  }
 
-    this.coverLeft.style.width = prevLeft/bounds.width * 100 + '%';
-    this.coverRight.style.left = prevRight/bounds.width * 100 + '%';
-
-    let dragStartedAt = 0;
-    let mode = 'move';
+  _makeDraggable() {
+    let bounds, deltaX, mode;
 
     let onStart = (e) => {
+      bounds = this.parent.getBoundingClientRect();
+      this.parent.classList.add('moving');
+
       let sliderBounds = this.slidingWindow.getBoundingClientRect();
-      let clientX = e.clientX || e.targetTouches[0].pageX;
-      dragStartedAt = clientX - sliderBounds.left;
+      let clientX = e.clientX || e.targetTouches && e.targetTouches[0].pageX || 0;
+
+      deltaX = clientX - sliderBounds.left;
 
       if (e.target.classList.contains('left-grip'))
         mode = 'left';
@@ -62,48 +65,48 @@ export class Slider {
         mode = 'move';
 
       document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove);
+      document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('mouseup', stopDD);
       document.addEventListener('touchend', stopDD);
     };
 
-    this.slidingWindow.addEventListener('mousedown', onStart);
-    this.slidingWindow.addEventListener('touchstart', onStart);
+    let onMove = (e) => {
+      let clientX = e.clientX || e.targetTouches && e.targetTouches[0].pageX || 0;
+      let [left, right] = this.scale;
+      let width = right - left;
 
-    let self = this;
-    function onMove(e) {
-      let left, right;
-      let clientX = e.clientX || e.targetTouches[0].pageX;
-
-       if (mode === 'right') {
-        left = prevLeft;
-        right = Math.min(bounds.width, clientX - bounds.left);
+      if (mode === 'right') {
+        right = Math.min(1, (clientX - bounds.left) / bounds.width);
+        right = Math.max(left + this.minScaleWidth, right);
       } else if (mode === 'left') {
-        left = Math.max(0, clientX - dragStartedAt - bounds.left);
-        right = prevRight;
+        left = Math.max(0, (clientX - deltaX - bounds.left) / bounds.width);
+        left = Math.min(right - this.minScaleWidth, left);
       } else {
-        left = Math.max(0, clientX - dragStartedAt - bounds.left);
-        left = Math.min(left, bounds.width - (prevRight - prevLeft));
-        right = left + prevRight - prevLeft;
+        left = Math.max(0, (clientX - deltaX - bounds.left) / bounds.width);
+        left = Math.min(1 - width, left);
+        right = Math.min(1, left + width);
       }
 
-      self.slidingWindow.style.left = left/bounds.width * 100 + '%';
-      self.slidingWindow.style.width = (right - left)/bounds.width * 100 + '%';
-      self.coverLeft.style.width = left/bounds.width * 100 + '%';
-      self.coverRight.style.left = right/bounds.width * 100 + '%';
-      self.scale = [left/bounds.width, right/bounds.width];
+      this.scale = [left, right];
+      this._updateSlidingWindow();
 
-      self.onChange(self.scale);
+      this.onChange(this.scale);
 
-      prevLeft = left;
-      prevRight = right;
-    }
+      e.preventDefault();
+    };
 
-    function  stopDD() {
+    let stopDD = () => {
       document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
       document.removeEventListener('mouseup', stopDD);
+      document.removeEventListener('touchend', stopDD);
 
-      self.onFinish();
-    }
+      this.parent.classList.remove('moving');
+
+      this.onFinish();
+    };
+
+    this.slidingWindow.addEventListener('mousedown', onStart);
+    this.slidingWindow.addEventListener('touchstart', onStart);
   }
 }

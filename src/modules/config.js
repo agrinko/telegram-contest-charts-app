@@ -18,10 +18,12 @@ export const DATE_FORMAT = {
 };
 
 /**
- * Default date range to scale to initially (in milliseconds)
+ * Default part of the chart displayed initially
  * @type {number}
  */
-export const DEFAULT_DATE_RANGE = 35 * ONE_DAY;
+export const DEFAULT_SCALE = .25;
+
+export const MIN_DATE_RANGE = 3 * ONE_DAY;
 
 /**
  * Timestamps that differ by less than this constant are considered equal
@@ -41,5 +43,6 @@ export const lineEvents = {
 };
 
 export const linesGroupEvents = {
-  UPDATE_RANGE: 'update-y-range'
+  UPDATE_Y_RANGE: 'update-y-range',
+  UPDATE_X_RANGE: 'update-x-range'
 };

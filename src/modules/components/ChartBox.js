@@ -1,4 +1,4 @@
-import {seriesTypes, DEFAULT_DATE_RANGE} from '../config';
+import {seriesTypes, DEFAULT_SCALE} from '../config';
 import {ChartPreview} from './ChartPreview/ChartPreview';
 import {Line} from "../tools/Line";
 import {Chart} from "./Chart/Chart";
@@ -114,7 +114,7 @@ export class ChartBox {
 
   _getInitialBounds() {
     return [
-      Math.max(this.axis.min, this.axis.max - DEFAULT_DATE_RANGE),
+      Math.max(this.axis.min, this.axis.max - DEFAULT_SCALE * (this.axis.max - this.axis.min)),
       this.axis.max
     ];
   }

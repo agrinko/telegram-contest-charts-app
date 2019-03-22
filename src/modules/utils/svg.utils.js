@@ -20,33 +20,12 @@ export function draw(svgContainer, element) {
  * Create SVG <polyline> element
  * @param {string} points
  * @param {string?} color
- * @param {Object?} attributes
  * @returns {SVGElement}
  */
-export function createPolyline(points, color = '#000000', attributes = {}) {
+export function createPolyline(points, color = '#000000') {
   let el = elementFromString(
     `<polyline points="${points}" stroke="${color}"/>`
   );
-
-  for (let key in attributes)
-    el.setAttribute(key, attributes[key]);
-
-  return el;
-}
-
-/**
- * Create SVG <line> element
- * @param {string} points
- * @param {Object?} attributes
- * @returns {SVGElement}
- */
-export function createLine(points, attributes = {}) {
-  let el = elementFromString(
-    `<line x1="${points[0][0]}" y1="${points[0][1]}" x2="${points[1][0]}" y2="${points[1][1]}" />`
-  );
-
-  for (let key in attributes)
-    el.setAttribute(key, attributes[key]);
 
   return el;
 }
@@ -68,7 +47,7 @@ export function elementFromString(html) {
  * @param {TransformationMatrix} matrix
  */
 export function applyTransformationMatrix(el, matrix) {
-  el.style.mozTransform = `matrix(${matrix.join(',')})`;
   el.style.webkitTransform = `matrix(${matrix.join(',')})`;
   el.style.transform = `matrix(${matrix.join(',')})`;
+  el.setAttribute('transform', `matrix(${matrix.join(',')})`);
 }

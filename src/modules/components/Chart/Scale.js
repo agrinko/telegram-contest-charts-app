@@ -5,7 +5,7 @@ export class Scale {
     this.el = element;
     this.linesGroup = linesGroup;
 
-    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_RANGE, this.render, this);
+    this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_Y_RANGE, this.render, this);
   }
 
   render() {

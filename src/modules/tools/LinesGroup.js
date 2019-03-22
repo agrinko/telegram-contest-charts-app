@@ -42,29 +42,36 @@ export class LinesGroup {
     this.xBounds = bounds;
     this._latestAxisIndices = null; // invalidate cache
     this._updateYBounds();
+    this.events.next(linesGroupEvents.UPDATE_X_RANGE);
   }
 
   /**
-   * Get transformation matrix for the given line into the lines group basis
-   * @param {Line|string} line or key
    * @param {ViewBox} viewBox
    * @returns {TransformationMatrix}
    */
-  getTransformationMatrix(line, viewBox) {
-    const scaleBasis = [ // transformation from line's view box to the group's view box
-      viewBox[0] / line.viewBox[0],
-      viewBox[1] / line.viewBox[1]
-    ];
+  getHorizontalTransform(viewBox) {
+    const globalMinX = this.lines[0].minX,
+          linesScaleX = this.lines[0].transformationMatrix[0];
 
-    let scaleX = scaleBasis[0] * (line.maxX - line.minX) / (this.maxX - this.minX);
-    let scaleY = scaleBasis[1] * (line.maxY - line.minY) / (this.maxY - this.minY);
+    let scaleX = viewBox[0] / (this.maxX - this.minX) / linesScaleX;
+    let translateX = viewBox[0] * (this.minX - globalMinX) / (this.maxX - this.minX) * -1;
+
+    return [scaleX, 0, 0, 1, translateX, 0];
+  }
+
+  /**
+   * @param {ViewBox} viewBox
+   * @param {Line|string} line or key
+   * @returns {TransformationMatrix}
+   */
+  getVerticalTransformForLine(viewBox, line) {
+    let scaleY = viewBox[1] / (this.maxY - this.minY) * (line.maxY - line.minY) / line.viewBox[1];
     // translation formulas are different for X and Y because transform origin defaults to `top, left`,
     // which corresponds to maximum Y and minimum X (thus using `minX` but `maxY`);
     // translateX is multiplied by `-1` to ensure lines are translated to the left
-    let translateX = viewBox[0] * (this.minX - line.minX) / (this.maxX - this.minX) * -1;
     let translateY = viewBox[1] * (this.maxY - line.maxY) / (this.maxY - this.minY);
 
-    return [scaleX, 0, 0, scaleY, translateX, translateY];
+    return [1, 0, 0, scaleY, 0, translateY];
   }
 
   _getYBounds() {
@@ -95,7 +102,10 @@ export class LinesGroup {
   }
 
   _updateYBounds() {
+    let oldBounds = this.yBounds;
     this.yBounds = this._getYBounds();
-    this.events.next(linesGroupEvents.UPDATE_RANGE);
+
+    if (oldBounds[0] !== this.yBounds[0] || oldBounds[1] !== this.yBounds[1])
+      this.events.next(linesGroupEvents.UPDATE_Y_RANGE);
   }
 }
