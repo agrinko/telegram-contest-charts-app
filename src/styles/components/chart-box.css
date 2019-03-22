@@ -13,6 +13,7 @@
     align-content: flex-start;
     align-items: stretch;
     padding: 3vh 3vmin var(--footer-height);
+    overflow-x: hidden;
 
     & .chart-title {
         flex: 1 0;
@@ -68,12 +69,12 @@
     @media (--narrow-landscape) {
         & .chart-with-preview {
             flex-basis: 80vh;
-            width: 75%;
+            width: 80%;
         }
 
         & .chart-legend {
             flex-basis: 80vh;
-            width: 25%;
+            width: 20%;
             margin-top: 5vh;
         }
     }

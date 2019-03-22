@@ -25,6 +25,7 @@
         user-select: none;
         cursor: pointer;
         padding: 5px 5%;
+        -webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
 
         &:hover,
         &:active {
@@ -37,6 +38,14 @@
     }
 
     @media (--narrow-landscape) {
-        display: none;
+        height: auto;
+        left: 80%;
+        line-height: 1.5;
+        padding-bottom: 5vh;
+
+        & > .btn {
+            font-size: small;
+            padding: 5px 15%;
+        }
     }
 }

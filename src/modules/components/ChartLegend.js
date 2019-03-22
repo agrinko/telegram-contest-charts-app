@@ -8,19 +8,19 @@ export class ChartLegend {
     this.values = lines.map(line => ({
       key: line.key,
       label: line.name,
-      enabled: line.enabled
+      enabled: line.enabled,
+      color: line.color
     }));
   }
 
   renderData() {
     this.values.forEach(item => {
       let button = elementFromString(
-        `<div class="legend-button">
-          <label>
-            <input type="checkbox" value="${item.key}" ${item.enabled ? 'checked="checked"' : ''} />
-            <span>${item.label}</span>
-          </label>
-         </div>`
+        `<label class="legend-button">
+          <input type="checkbox" value="${item.key}" ${item.enabled ? 'checked="checked"' : ''} />
+          <span class="custom-checkbox" style="background-color: ${item.color}"></span>
+          <span class="checkbox-label">${item.label}</span>
+        </label>`
       );
 
       button.querySelector('input').addEventListener('change', (event) => {
