@@ -70,17 +70,19 @@ export class ChartBox {
     this.el.className = 'chart-box';
     this.el.innerHTML =
       `<h2 class="chart-title">${this.title}</h2>
-       <div class="chart"></div>
-       <div class="chart-preview"></div>
+       <div class="chart-with-preview">
+         <div class="chart"></div>
+         <div class="chart-preview"></div>
+       </div>
        <div class="chart-legend"></div>`;
 
-    const [title, chart, preview, legend] = this.el.children;
+    const [title, container, legend] = this.el.children;
 
     this.layout = {
       title,
-      chart,
-      preview,
-      legend
+      legend,
+      chart: container.firstElementChild,
+      preview: container.lastElementChild
     };
   }
 

@@ -35,4 +35,8 @@
             text-transform: capitalize;
         }
     }
+
+    @media (--narrow-landscape) {
+        display: none;
+    }
 }

@@ -1,13 +1,8 @@
 .chart-preview {
+    min-height: 35px;
+    max-height: 50px;
     position: relative;
-    height: 50px;
-    margin: 15px 0;
-    width: var(--chart-width);
     user-select: none;
-
-    @media (max-height: 350px) {
-        height: 35px;
-    }
 
     & svg {
         position: relative;
@@ -60,12 +55,15 @@
         }
     }
 
-    @media (--tablet) and (min-height: 350px) {
-        height: 60px;
+    @media (min-width: 900px) {
+        max-height: 60px;
+    }
+
+    @media (min-width: 1150px) {
+        max-height: 65px;
     }
 
     @media (--wide) {
-        height: 80px;
-        margin: 25px 0;
+        max-height: 75px;
     }
 }

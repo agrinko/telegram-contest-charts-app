@@ -1,5 +1,7 @@
 module.exports = context => ({
-
+  map: {
+    inline: false
+  },
   plugins: {
     'postcss-import': {
       from: 'src/styles/main.pcss'

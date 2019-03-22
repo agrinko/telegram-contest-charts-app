@@ -1,7 +1,7 @@
 # TODO:
 
-- proper layout for all devices
-- //launcher
+- // proper layout for all devices
+- // launcher
 - chart legend
 - fonts & sizes
 - resizing & rotating

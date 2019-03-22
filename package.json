@@ -8,9 +8,9 @@
   "scripts": {
     "build": "npm run build:css && npm run build:js",
     "build:js": "rollup -c --environment NODE_ENV:production",
-    "build:css": "postcss src/styles/main.css -o dist/styles.css -m --env production",
+    "build:css": "postcss src/styles/main.css -o dist/styles.css --env production",
     "start": "npm run start:css | npm run start:js",
-    "start:css": "postcss src/styles/main.css -o tmp/styles.css -m --watch",
+    "start:css": "postcss src/styles/main.css -o tmp/styles.css --watch",
     "start:js": "rollup -c --watch",
     "lint": "eslint ./src/**.js"
   },

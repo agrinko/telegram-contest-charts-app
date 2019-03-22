@@ -10,7 +10,6 @@
 
 
 body {
-    padding: 3vh 3vmin;
     transition: background var(--theme-transition-duration) ease-in-out;
     background: var(--background, white);
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
