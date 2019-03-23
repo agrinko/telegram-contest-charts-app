@@ -1,4 +1,5 @@
 import * as DOM from "../../utils/dom.utils";
+import {TOUCH_SUPPORT} from "../../config";
 
 
 export class Slider {
@@ -49,8 +50,6 @@ export class Slider {
     let bounds;
     let registeredTouches = {};
 
-    let output = document.getElementById('output');
-
     let onStart = (e) => {
       bounds = this.parent.getBoundingClientRect();
       this.parent.classList.add('moving');
@@ -84,10 +83,15 @@ export class Slider {
       }
 
       if (Object.keys(registeredTouches).length === 0) { // only for the first touch
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('touchmove', onMove, {passive: false}); // passive: false to prevent page scrolling
-        document.addEventListener('mouseup', stopDD);
-        document.addEventListener('touchend', stopDD);
+        if (TOUCH_SUPPORT) {
+          // passive: false to prevent page scrolling (by calling e.preventDefault() later);
+          // capture: true to achieve this behavior on iOS
+          document.addEventListener('touchmove', onMove, { passive: false, capture: true });
+          document.addEventListener('touchend', stopDD);
+        } else {
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', stopDD);
+        }
       }
 
       registeredTouches[id] = {
@@ -95,6 +99,8 @@ export class Slider {
         mode,
         touchLeft: (clientX - bounds.left) / bounds.width
       };
+
+      e.preventDefault();
     };
 
     let onMove = (e) => {
@@ -145,16 +151,19 @@ export class Slider {
       delete registeredTouches[e.changedTouches ? e.changedTouches[0].identifier : 'mouse'];
       if (Object.keys(registeredTouches).length === 0) {
         document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchmove', onMove, { capture: true });
         document.removeEventListener('mouseup', stopDD);
         document.removeEventListener('touchend', stopDD);
 
         this.parent.classList.remove('moving');
         this.onFinish();
       }
+
     };
 
-    this.slidingWindow.addEventListener('mousedown', onStart);
-    this.slidingWindow.addEventListener('touchstart', onStart);
+    if (TOUCH_SUPPORT)
+      this.slidingWindow.addEventListener('touchstart', onStart);
+    else
+      this.slidingWindow.addEventListener('mousedown', onStart);
   }
 }

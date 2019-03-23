@@ -5,6 +5,7 @@ import {Axis} from "./Axis";
 import {equals} from "../../utils/math.utils";
 import {Scale} from "./Scale";
 import {Drawing} from "../../tools/Drawing";
+import {DataFlag} from "./DataFlag";
 
 
 export class Chart {
@@ -40,7 +41,18 @@ export class Chart {
 
     this.el.appendChild(this.scaleContainer);
 
-    this.drawing = new Drawing(this.viewBox);
+    this.drawing = new Drawing(this.viewBox, {
+      onHover: (identifier, x) => {
+        this.dataFlag.showAt(x, identifier);
+      },
+      onHoverEnd: (identifier) => {
+        this.dataFlag.hide(identifier);
+      }
+    });
+
+    this.dataFlag = new DataFlag(this.linesGroup, this.drawing);
+
+    this.dataFlag.appendTo(this.el);
     this.drawing.appendTo(this.el);
   }
 

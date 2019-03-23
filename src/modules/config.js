@@ -3,9 +3,11 @@ export const seriesTypes = {
   AXIS: 'x'
 };
 
+export const TOUCH_SUPPORT = 'ontouchstart' in window ;
+
 export const THEMES = ['day', 'night'];
 
-export const CHART_PREVIEW_PADDING = .05;
+export const CHART_PREVIEW_PADDING = .00; // TODO: fix padding
 
 export const ZERO_BASED_Y_AXIS = false;
 
@@ -15,6 +17,11 @@ export const DEFAULT_LOCALE = 'en-us';
 export const DATE_FORMAT = {
   month: 'short',
   day: 'numeric'
+};
+export const DATE_FORMAT_LONG = {
+  month: 'short',
+  day: 'numeric',
+  weekday: 'short'
 };
 
 /**

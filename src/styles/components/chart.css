@@ -41,7 +41,7 @@
         position: absolute;
         left: 0;
         right: 0;
-        border-bottom: 1px solid var(--grid-color, rgba(128, 128, 128, .15));
+        border-bottom: 1px solid var(--grid-color);
         color: var(--grid-label-color, grey);
         padding-bottom: 5px;
         font-size: small;
@@ -49,11 +49,25 @@
         transition-property: color, border-color;
 
         &.edge {
-            border-color: var(--grid-color-brighter, rgba(128, 128, 128, .2));
+            border-color: var(--grid-color-brighter);
         }
     }
 
-    & svg polyline {
+    & .data-flag-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 1px solid var(--data-flag-line-color);
+        transition: border-color var(--theme-transition-duration) ease-in-out;
+        z-index: -1;
+    }
+
+    & .data-point {
+        fill: var(--background);
+    }
+
+    & svg polyline,
+    & svg .data-point {
         stroke-width: 2.2px;
 
         @media (--tablet) {
@@ -61,4 +75,70 @@
         }
     }
 
+}
+
+.data-flag-tooltip {
+    position: absolute;
+    width: max-content;
+    top: -2%;
+    max-width: 220px;
+    border-radius: 5px;
+    padding: 10px 12px;
+    background: var(--tooltip-background);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+    z-index: 100;
+    transform-origin: center;
+    transition: left 300ms ease-out, right 300ms ease-out, transform 300ms ease-out;
+    will-change: transform;
+
+    & .tooltip-date {
+        width: 100%;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        font-size: medium;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    & .tooltip-points {
+        display: flex;
+        width: 100%;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+    }
+
+    & .tooltip-point {
+        box-sizing: border-box;
+        flex: 1 1 40%;
+        padding: 10px 10px 0 0;
+
+        & .p-value {
+            margin-bottom: 5px;
+            font-size: large;
+            font-weight: 600;
+        }
+
+        & .p-name {
+            font-size: small;
+        }
+    }
+
+    @media (max-width: 1000px) {
+        min-width: 80px;
+        max-width: 170px;
+
+        & .tooltip-date {
+            font-size: 14px;
+        }
+        & .tooltip-point {
+            padding: 5px 5px 0 0;
+
+            & .p-value {
+                font-size: 14px;
+            }
+            & .p-name {
+                font-size: 11px;
+            }
+        }
+    }
 }

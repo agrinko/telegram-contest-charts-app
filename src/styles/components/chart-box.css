@@ -70,9 +70,9 @@
             right: 0;
             bottom: 0;
             z-index: 1;
-            background: linear-gradient(to bottom, var(--background), transparent 3vmin),
-                        linear-gradient(to right, var(--background), transparent 3vmin),
-                        linear-gradient(to left, var(--background), transparent 3vmin);
+            background: linear-gradient(to bottom, var(--background), rgba(var(--background-rgb), 0) 3vmin),
+                        linear-gradient(to right, var(--background), rgba(var(--background-rgb), 0) 3vmin),
+                        linear-gradient(to left, var(--background), rgba(var(--background-rgb), 0) 3vmin);
             pointer-events: none;
         }
 

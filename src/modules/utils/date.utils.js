@@ -1,4 +1,4 @@
-import {DATE_FORMAT, DEFAULT_LOCALE} from "../config";
+import {DATE_FORMAT, DATE_FORMAT_LONG, DEFAULT_LOCALE} from "../config";
 
 
 /**
@@ -7,8 +7,13 @@ import {DATE_FORMAT, DEFAULT_LOCALE} from "../config";
  * @returns {string}
  */
 export function format(timestampOrDate) {
-  let date = (timestampOrDate instanceof Date) ? timestampOrDate : new Date(timestampOrDate);
+  let date = new Date(timestampOrDate);
   return date.toLocaleString(DEFAULT_LOCALE, DATE_FORMAT);
+}
+
+export function formatLong(timestampOrDate) {
+  let date = new Date(timestampOrDate);
+  return date.toLocaleString(DEFAULT_LOCALE, DATE_FORMAT_LONG);
 }
 
 /**
@@ -17,7 +22,7 @@ export function format(timestampOrDate) {
  * @returns {Date}
  */
 export function beginningOfDay(timestampOrDate) {
-  let date = (timestampOrDate instanceof Date) ? timestampOrDate : new Date(timestampOrDate);
+  let date = new Date(timestampOrDate);
 
   date.setHours(0, 0, 0, 0);
   return date;

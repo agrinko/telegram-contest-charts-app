@@ -12,10 +12,6 @@ export function toPolylinePoints(points, viewBox) {
   }).join(' ');
 }
 
-export function draw(svgContainer, element) {
-  svgContainer.appendChild(element);
-}
-
 /**
  * Create SVG <polyline> element
  * @param {string} points

@@ -12,7 +12,7 @@ export class ChartPreview {
     this.initialBounds = options.initialBounds;
     this.linesGroup = new LinesGroup(lines, {});
 
-    this._updateScaleDefferred = throttle(this._updateScale, 30);
+    this._updateScaleDefferred = throttle(this._updateScale, 10);
   }
 
   setViewBox([width, height]) {

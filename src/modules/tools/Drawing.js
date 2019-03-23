@@ -1,5 +1,5 @@
 import * as SVG from "../utils/svg.utils";
-import {lineEvents, linesGroupEvents} from "../config";
+import {lineEvents, linesGroupEvents, TOUCH_SUPPORT} from "../config";
 
 
 export class Drawing {
@@ -7,6 +7,8 @@ export class Drawing {
     this.paddingRel = options && options.padding || 0;
     this.padding = height * this.paddingRel;
     this.viewBox = [width, height - 2 * this.padding];
+    this.onHover = options.onHover;
+    this.onHoverEnd = options.onHoverEnd;
 
     this.svgContainer = SVG.elementFromString(
       `<svg viewBox="0 0 ${width} ${height - 2 * this.padding}" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -15,6 +17,7 @@ export class Drawing {
     );
     this.svgContainer.style.marginTop = this.padding + 'px';
     this.linesContainer = this.svgContainer.firstElementChild;
+    this._pointRadius = this._getPreferredPointRadius();
   }
 
   resize([width, height]) {
@@ -23,6 +26,7 @@ export class Drawing {
     this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height - 2 * this.padding}`);
     this.svgContainer.style.marginTop = this.paddingRel + '%';
     this._updateTransformations();
+    this._pointRadius = this._getPreferredPointRadius();
   }
 
   appendTo(el) {
@@ -41,10 +45,50 @@ export class Drawing {
     this._updateTransformations();
 
     for (let key in this.svgLines)
-      SVG.draw(this.linesContainer, this.svgLines[key]);
+      this.linesContainer.appendChild(this.svgLines[key]);
 
     this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_Y_RANGE, this._transformVertically, this);
     this.linesGroup.events.subscribe(linesGroupEvents.UPDATE_X_RANGE, this._transformHorizontally, this);
+
+    if (this.onHover)
+      this._trackHoverEvents();
+  }
+
+  createPointsGroup() {
+    let points = [];
+
+    this.linesGroup.forEach(line => {
+      if (line.enabled) {
+        let circle = SVG.elementFromString(
+          `<circle r="${this._pointRadius}" class="data-point" stroke="${line.color}"/>`
+        );
+        this.svgContainer.appendChild(circle);
+        points.push(circle);
+      }
+    });
+
+    return points;
+  }
+
+  drawPointsAtIndex(pointsGroup, index) {
+    let i = 0;
+    // assuming points appear in the same order as corresponding lines in linesGroup
+    this.linesGroup.forEach(line => {
+      if (line.enabled) {
+        let circle = pointsGroup[i];
+        let xy = this._getCoordinatesByIndex(line, index);
+
+        circle.setAttribute('cx', xy[0]);
+        circle.setAttribute('cy', xy[1]);
+        i++;
+      }
+    });
+  }
+
+  removePoints(pointsGroup) {
+    pointsGroup.forEach(p => {
+      this.svgContainer.removeChild(p);
+    });
   }
 
   _updateTransformations() {
@@ -69,5 +113,105 @@ export class Drawing {
   _onToggleLine(line) {
     let polyline = this.svgLines[line.key];
     polyline.classList.toggle('disabled');
+  }
+
+  _getCoordinatesByIndex(line, i) {
+    let xValue = line.axis.values[i];
+    let yValue = line.values[i];
+
+    return [
+      (xValue - this.linesGroup.minX) / (this.linesGroup.maxX - this.linesGroup.minX) * this.viewBox[0],
+      this.viewBox[1] - (yValue - this.linesGroup.minY) / (this.linesGroup.maxY - this.linesGroup.minY) * this.viewBox[1]
+    ];
+  }
+
+  _trackHoverEvents() {
+    let bounds;
+    let registeredTouches = {};
+
+    let onTouchStart = (e) => {
+      bounds = this.svgContainer.getBoundingClientRect();
+
+      if (Object.keys(registeredTouches).length === 0) {
+        document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+        document.addEventListener('touchend', onTouchEnd);
+      }
+
+      for (let touch of e.changedTouches) {
+        registeredTouches[touch.identifier] = true;
+
+        this.onHover(
+          touch.identifier,
+          this._getXByFraction((touch.clientX - bounds.left) / bounds.width)
+        );
+      }
+    };
+
+    let onTouchMove = (e) => {
+      for (let touch of e.changedTouches) {
+        if (registeredTouches[touch.identifier]) { // only if touch began at svgContainer target
+          this.onHover(
+            touch.identifier,
+            this._getXByFraction((touch.clientX - bounds.left) / bounds.width)
+          );
+        }
+      }
+
+      if (Object.keys(registeredTouches).length > 1)
+        e.preventDefault();
+    };
+
+    let onMouseMove = (e) => {
+      bounds = bounds || this.svgContainer.getBoundingClientRect();
+
+      this.onHover(
+        'mouse',
+        this._getXByFraction((e.clientX - bounds.left) / bounds.width)
+      );
+    };
+
+    let onTouchEnd = (e) => {
+      for (let touch of e.changedTouches) {
+        if (registeredTouches[touch.identifier]) {
+          delete registeredTouches[touch.identifier];
+          this.onHoverEnd(touch.identifier);
+        }
+      }
+
+      if (Object.keys(registeredTouches).length === 0) {
+        document.removeEventListener('touchmove', onTouchMove, { capture: true });
+        document.removeEventListener('touchend', onTouchEnd);
+      }
+    };
+
+    if (TOUCH_SUPPORT)
+      this.svgContainer.addEventListener('touchstart', onTouchStart);
+    else {
+      this.svgContainer.addEventListener('mousemove', onMouseMove);
+      this.svgContainer.addEventListener('mouseleave', () => {
+        bounds = null;
+        this.onHoverEnd('mouse');
+      });
+    }
+  }
+
+  _getXByFraction(fraction) {
+    return this.linesGroup.minX + fraction * (this.linesGroup.maxX - this.linesGroup.minX);
+  }
+
+  _getPreferredPointRadius() {
+    let width = this.viewBox[0];
+    let r = 3.5;
+
+    if (width > 500)
+      r = 4;
+
+    if (width > 800)
+      r = 4.5;
+
+    if (width > 1100)
+      r = 5.5;
+
+    return r;
   }
 }

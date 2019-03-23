@@ -14,6 +14,10 @@ export class LinesGroup {
     this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._updateYBounds, this));
   }
 
+  get axis() {
+    return this.lines[0] && this.lines[0].axis;
+  }
+
   get minX() {
     return this.xBounds[0];
   }
@@ -89,7 +93,7 @@ export class LinesGroup {
   }
 
   _getAxisIndicesRange() {
-    const axis = this.lines[0].axis.values;
+    const axis = this.axis.values;
 
     // used cached indices to avoid recalculations when horizontal scale was not changed
     if (!this._latestAxisIndices)

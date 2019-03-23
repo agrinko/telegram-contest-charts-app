@@ -9,27 +9,16 @@ import { ChartBox } from './components/ChartBox';
 import {THEMES} from './config';
 
 
-const switcher = document.getElementById('theme-switcher');
-
 export function startApp(data) {
   setTheme();
   renderCharts(data);
-
-  let prevTimeout;
-
-  switcher.addEventListener('click', () => {
-    document.body.classList.add('changing-theme');
-    setTheme(document.body.getAttribute('data-theme') === 'day' ? 'night' : 'day');
-
-    clearTimeout(prevTimeout);
-
-    prevTimeout = setTimeout(() => {
-      document.body.classList.remove('changing-theme');
-    }, 200); // TODO: magic number
-  });
+  enableThemeSwitcher();
+  preventDefaultBehavior();
 }
 
 function setTheme(theme) {
+  const switcher = document.getElementById('theme-switcher');
+
   if (!theme) {
     let initialTheme;
 
@@ -74,4 +63,28 @@ function stopLauncher() {
     launcher.parentElement.removeChild(launcher);
     document.getElementsByClassName('theme-switcher')[0].classList.add('fly-in');
   }, 1000);
+}
+
+function enableThemeSwitcher() {
+  const switcher = document.getElementById('theme-switcher');
+  let prevTimeout;
+
+  switcher.addEventListener('click', () => {
+    document.body.classList.add('changing-theme');
+    setTheme(document.body.getAttribute('data-theme') === 'day' ? 'night' : 'day');
+
+    clearTimeout(prevTimeout);
+
+    prevTimeout = setTimeout(() => {
+      document.body.classList.remove('changing-theme');
+    }, 200); // TODO: magic number
+  });
+}
+
+function preventDefaultBehavior() {
+  // prevent zooming on iOS (it does not respect "user-scalable" in viewport meta-tag)
+  document.addEventListener('touchmove', (e) => {
+    if (e.scale > 1)
+      e.preventDefault();
+  }, { passive: false, capture: true });
 }
