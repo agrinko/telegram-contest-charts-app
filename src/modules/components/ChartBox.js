@@ -1,8 +1,9 @@
-import {seriesTypes, DEFAULT_SCALE} from '../config';
+import {seriesTypes, DEFAULT_SCALE, ONE_DAY} from '../config';
 import {ChartPreview} from './ChartPreview/ChartPreview';
 import {Line} from "../tools/Line";
 import {Chart} from "./Chart/Chart";
 import {ChartLegend} from "./ChartLegend";
+import {roundToMultiplier} from "../utils/math.utils";
 
 
 export class ChartBox {
@@ -113,8 +114,10 @@ export class ChartBox {
   }
 
   _getInitialBounds() {
+    let lo = this.axis.max - DEFAULT_SCALE * (this.axis.max - this.axis.min);
+
     return [
-      Math.max(this.axis.min, this.axis.max - DEFAULT_SCALE * (this.axis.max - this.axis.min)),
+      Math.max(this.axis.min, roundToMultiplier(lo, ONE_DAY)),
       this.axis.max
     ];
   }

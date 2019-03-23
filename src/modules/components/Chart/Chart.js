@@ -23,23 +23,13 @@ export class Chart {
 
     if (this.drawing)
       this.drawing.resize(viewBox);
+
+    if (this.xAxis)
+      this.xAxis.resize(viewBox);
   }
 
   draw() {
-    this.scaleContainer = DOM.elementFromString(
-      `<div class="scale-container">
-        <div class="x-axis"></div>
-        <div class="y-scale"></div>
-      </div>`
-    );
-
-    this.xAxis = new Axis(this.scaleContainer.firstElementChild, this.axis.values, {
-      bounds: this.bounds
-    });
-
-    this.yScale = new Scale(this.scaleContainer.lastElementChild, this.linesGroup);
-
-    this.el.appendChild(this.scaleContainer);
+    this.el.innerHTML = `<div class="y-scale"></div>`;
 
     this.drawing = new Drawing(this.viewBox, {
       onHover: (identifier, x) => {
@@ -50,8 +40,16 @@ export class Chart {
       }
     });
 
+    this.xAxis = new Axis(this.axis.values, {
+      bounds: this.bounds,
+      viewBox: this.viewBox
+    });
+
+    this.yScale = new Scale(this.el.lastElementChild, this.linesGroup);
+
     this.dataFlag = new DataFlag(this.linesGroup, this.drawing);
 
+    this.xAxis.appendTo(this.el);
     this.dataFlag.appendTo(this.el);
     this.drawing.appendTo(this.el);
   }
@@ -59,7 +57,7 @@ export class Chart {
   renderData() {
     this.drawing.drawLinesGroup(this.linesGroup);
 
-    this.xAxis.render(true);
+    this.xAxis.render();
     this.yScale.render();
   }
 
@@ -74,6 +72,6 @@ export class Chart {
   }
 
   finishInteraction() {
-    this.xAxis.finishInteraction();
+    this.xAxis.render();
   }
 }
