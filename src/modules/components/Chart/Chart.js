@@ -1,6 +1,5 @@
 import {LinesGroup} from "../../tools/LinesGroup";
-import * as DOM from '../../utils/dom.utils';
-import {TIME_COMPARISON_PRECISION} from "../../config";
+import {TIME_COMPARISON_PRECISION, Y_SCALE_STEPS} from "../../config";
 import {Axis} from "./Axis";
 import {equals} from "../../utils/math.utils";
 import {Scale} from "./Scale";
@@ -14,7 +13,8 @@ export class Chart {
     this.axis = options.axis;
     this.bounds = options.bounds;
     this.linesGroup = new LinesGroup(lines, {
-      bounds: this.bounds
+      bounds: this.bounds,
+      nSteps: Y_SCALE_STEPS
     });
   }
 
@@ -29,8 +29,6 @@ export class Chart {
   }
 
   draw() {
-    this.el.innerHTML = `<div class="y-scale"></div>`;
-
     this.drawing = new Drawing(this.viewBox, {
       onHover: (identifier, x) => {
         this.dataFlag.showAt(x, identifier);
@@ -45,11 +43,14 @@ export class Chart {
       viewBox: this.viewBox
     });
 
-    this.yScale = new Scale(this.el.lastElementChild, this.linesGroup);
+    this.yScale = new Scale(this.linesGroup, {
+
+    });
 
     this.dataFlag = new DataFlag(this.linesGroup, this.drawing);
 
     this.xAxis.appendTo(this.el);
+    this.yScale.appendTo(this.el);
     this.dataFlag.appendTo(this.el);
     this.drawing.appendTo(this.el);
   }
@@ -73,5 +74,6 @@ export class Chart {
 
   finishInteraction() {
     this.xAxis.finishInteraction();
+    this.linesGroup.finishInteraction();
   }
 }

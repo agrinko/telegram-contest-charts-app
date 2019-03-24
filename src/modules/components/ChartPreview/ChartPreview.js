@@ -10,7 +10,9 @@ export class ChartPreview {
     this.el = element;
     this.axis = options.axis;
     this.initialBounds = options.initialBounds;
-    this.linesGroup = new LinesGroup(lines, {});
+    this.linesGroup = new LinesGroup(lines, {
+      padding: CHART_PREVIEW_PADDING
+    });
 
     this._updateScaleDefferred = throttle(this._updateScale, 10);
   }
@@ -23,9 +25,7 @@ export class ChartPreview {
   }
 
   draw() {
-    this.drawing = new Drawing(this.viewBox, {
-      padding: CHART_PREVIEW_PADDING
-    });
+    this.drawing = new Drawing(this.viewBox);
     this.drawing.appendTo(this.el);
 
     this.slider = new Slider(this.el, {

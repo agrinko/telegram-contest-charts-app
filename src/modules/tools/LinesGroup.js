@@ -1,17 +1,23 @@
 import {findClosestIndex, getRange} from "../utils/array.utils";
 import {Events} from "./Events";
 import {lineEvents, linesGroupEvents} from "../config";
+import {roundToMultiplier, roundToNiceNumber} from "../utils/math.utils";
 
 
 export class LinesGroup {
   constructor(lines, options = {}) {
     this.events = new Events();
     this.lines = lines;
+    this.padding = options.padding || 0;
+    this.nSteps = options.nSteps;
 
     this.xBounds = options.bounds || [this.lines[0].minX, this.lines[0].maxX];
-    this.yBounds = this._getYBounds();
 
-    this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, this._updateYBounds, this));
+    this._updateYBounds(true);
+    this.forEach(line => line.events.subscribe(lineEvents.TOGGLE, () => {
+      this._scaleCache = null;
+      this._updateYBounds();
+    }));
   }
 
   get axis() {
@@ -78,6 +84,11 @@ export class LinesGroup {
     return [1, 0, 0, scaleY, 0, translateY];
   }
 
+  finishInteraction() {
+    this._scaleCache = null;
+    this._updateYBounds();
+  }
+
   _getYBounds() {
     let values = [];
     const [i1, i2] = this._getAxisIndicesRange();
@@ -105,11 +116,53 @@ export class LinesGroup {
     return this._latestAxisIndices;
   }
 
-  _updateYBounds() {
+  _updateYBounds(silent) {
     let oldBounds = this.yBounds;
-    this.yBounds = this._getYBounds();
+    let bounds = this._getYBounds();
 
-    if (oldBounds[0] !== this.yBounds[0] || oldBounds[1] !== this.yBounds[1])
+    if (!oldBounds)
+      oldBounds = bounds;
+
+    if (this.padding) {
+      bounds[1] += this.padding * (bounds[1] - bounds[0]);
+      bounds[0] -= this.padding * (bounds[1] - bounds[0]);
+    }
+
+    if (this.nSteps)
+      bounds = this._adjustBoundsToScale(bounds);
+
+    this.yBounds = bounds;
+
+    if (!silent && oldBounds[0] !== this.yBounds[0] || oldBounds[1] !== this.yBounds[1])
       this.events.next(linesGroupEvents.UPDATE_Y_RANGE);
+  }
+
+  _adjustBoundsToScale([min, max]) {
+    // allow at most 90% of the step to be empty at the bottom in order to begin Y axis with zero if possible
+    const allowedBottomPadding = 0.6;
+    const allowedTopPadding = 0.3;
+    // reserve free space at the top to allow changing yBounds without re-scaling
+    const reservedTopPadding = .15;
+
+
+    let diff = max - min;
+    let step = diff / this.nSteps;
+
+    let cache = this._scaleCache;
+
+    if (cache &&
+        cache[0] > min - step * allowedBottomPadding &&
+        cache[1] > max && cache[1] < max + allowedTopPadding * step) {
+      return cache;
+    }
+
+    let scaleMin = Math.max(0, min - step * allowedBottomPadding);
+    let scaleMax = max + step * reservedTopPadding;
+
+    scaleMin = roundToNiceNumber(scaleMin);
+
+    this._scaleCache = [scaleMin, scaleMax];
+
+    return [scaleMin, scaleMax];
   }
 }

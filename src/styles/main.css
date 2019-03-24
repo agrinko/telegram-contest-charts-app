@@ -20,7 +20,7 @@ svg polyline {
     vector-effect: non-scaling-stroke;
     stroke-width: 1.4px;
     fill: none;
-    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+    transition: opacity 350ms ease-in-out, transform 350ms ease-in-out;
     transform-origin: left top;
 
     &.disabled {

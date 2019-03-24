@@ -3,28 +3,23 @@ import {lineEvents, linesGroupEvents, TOUCH_SUPPORT} from "../config";
 
 
 export class Drawing {
-  constructor([width, height], options) {
-    this.paddingRel = options && options.padding || 0;
-    this.padding = height * this.paddingRel;
-    this.viewBox = [width, height - 2 * this.padding];
+  constructor(viewBox, options = {}) {
+    this.viewBox = viewBox;
     this.onHover = options.onHover;
     this.onHoverEnd = options.onHoverEnd;
 
     this.svgContainer = SVG.elementFromString(
-      `<svg viewBox="0 0 ${width} ${height - 2 * this.padding}" xmlns="http://www.w3.org/2000/svg" version="1.1">
+      `<svg viewBox="0 0 ${viewBox[0]} ${viewBox[1]}" xmlns="http://www.w3.org/2000/svg" version="1.1">
         <g></g>
       </svg>`
     );
-    this.svgContainer.style.marginTop = this.padding + 'px';
     this.linesContainer = this.svgContainer.firstElementChild;
     this._pointRadius = this._getPreferredPointRadius();
   }
 
-  resize([width, height]) {
-    this.viewBox = [width, height];
-    this.padding = height * this.paddingRel;
-    this.svgContainer.setAttribute('viewBox', `0 0 ${width} ${height - 2 * this.padding}`);
-    this.svgContainer.style.marginTop = this.paddingRel + '%';
+  resize(viewBox) {
+    this.viewBox = viewBox;
+    this.svgContainer.setAttribute('viewBox', `0 0 ${viewBox[0]} ${viewBox[1]}`);
     this._updateTransformations();
     this._pointRadius = this._getPreferredPointRadius();
   }

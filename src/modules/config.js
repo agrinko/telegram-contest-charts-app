@@ -5,9 +5,11 @@ export const seriesTypes = {
 
 export const TOUCH_SUPPORT = 'ontouchstart' in window ;
 
+export const Y_SCALE_STEPS = 5;
+
 export const THEMES = ['day', 'night'];
 
-export const CHART_PREVIEW_PADDING = .00; // TODO: fix padding
+export const CHART_PREVIEW_PADDING = .07;
 
 export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
@@ -17,18 +19,13 @@ export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
  */
 export const DEFAULT_SCALE = .25;
 
-export const MIN_DATE_RANGE = 3 * ONE_DAY;
+export const MIN_DATE_RANGE = 5 * ONE_DAY;
 
 /**
  * Timestamps that differ by less than this constant are considered equal
  * @type {number}
  */
 export const TIME_COMPARISON_PRECISION = 1000;
-/**
- * Minimal step for X axis (in milliseconds)
- * @type {number}
- */
-export const MINIMAL_TIME_STEP = ONE_DAY;
 
 /* EVENTS */
 
