@@ -50,6 +50,10 @@ function renderCharts(data) {
       charts.forEach(chart => chart.resize());
     });
 
+    window.addEventListener('orientationchange', () => {
+      charts.forEach(chart => chart.resize());
+    });
+
     stopLauncher();
   }, 0);
 
