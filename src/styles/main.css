@@ -30,6 +30,54 @@ svg polyline {
     }
 }
 
+#welcome-message.wm {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    width: 90%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    padding: 15px;
+    background: rgba(var(--anti-background-rgb), .8);
+    color: var(--anti-text-color);
+    opacity: .3;
+    transform: translate(-50%, 120%);
+    transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
+    z-index: 99999;
+
+    &.shown {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+
+    & > h4 {
+        margin-bottom: 14px;
+        font-size: medium;
+        font-weight: bold;
+    }
+
+    & > p {
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    & #welcome-message-close {
+        float: right;
+        padding: 6px;
+        opacity: .5;
+        cursor: pointer;
+
+        &::before {
+            content: "❌";
+        }
+
+        &:hover {
+            opacity: .9;
+        }
+    }
+}
+
 @media (--tablet) {
     svg polyline {
         stroke-width: 1.6px;

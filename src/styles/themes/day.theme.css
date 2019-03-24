@@ -1,7 +1,9 @@
 [data-theme="day"] {
     --background: white;
     --background-rgb: 255, 255, 255;
+    --anti-background-rgb: 36, 47, 62;
     --text-color: #222222;
+    --anti-text-color: white;
     --cover-color: #F3F8FB;
     --slider-color: #BAD4E7;
     --grid-color: rgba(164, 180, 192, .15);

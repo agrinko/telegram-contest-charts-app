@@ -6,7 +6,7 @@
  */
 
 import { ChartBox } from './components/ChartBox';
-import {THEMES} from './config';
+import {THEMES, TOUCH_SUPPORT, WELCOME_MESSAGE_DELAY} from './config';
 
 
 export function startApp(data) {
@@ -14,6 +14,7 @@ export function startApp(data) {
   renderCharts(data);
   enableThemeSwitcher();
   preventDefaultBehavior();
+  showWelcomeMessage();
 }
 
 function setTheme(theme) {
@@ -77,7 +78,7 @@ function enableThemeSwitcher() {
 
     prevTimeout = setTimeout(() => {
       document.body.classList.remove('changing-theme');
-    }, 200); // TODO: magic number
+    }, 200);
   });
 }
 
@@ -87,4 +88,27 @@ function preventDefaultBehavior() {
     if (e.scale > 1)
       e.preventDefault();
   }, { passive: false, capture: true });
+}
+
+function showWelcomeMessage() {
+  if (!TOUCH_SUPPORT)
+    return;
+
+  setTimeout(() => {
+    let wm = document.getElementById('welcome-message');
+    wm.classList.add('shown');
+    _bindWelcomeMessageEvents();
+  }, WELCOME_MESSAGE_DELAY);
+}
+
+
+function _bindWelcomeMessageEvents() {
+  let wm = document.getElementById('welcome-message');
+  let closeBtn = document.getElementById('welcome-message-close');
+  closeBtn.addEventListener('click', () => {
+    wm.classList.remove('shown');
+    setTimeout(() => {
+      wm.parentElement.removeChild(wm);
+    }, 500);
+  }, {once: true});
 }

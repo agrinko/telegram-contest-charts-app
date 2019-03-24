@@ -11,6 +11,8 @@ export const THEMES = ['day', 'night'];
 
 export const CHART_PREVIEW_PADDING = .07;
 
+export const WELCOME_MESSAGE_DELAY = 4000;
+
 export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
 /**

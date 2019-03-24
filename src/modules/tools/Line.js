@@ -38,7 +38,7 @@ export class Line {
     this.transformationMatrix = [
       scaleX, 0,
       0, scaleY,
-      -scaleX * this.minX, this.viewBox[1] - scaleY * this.minY // TODO: use these values or remove
+      0, 0
     ];
 
     this.svgPoints = SVG.toPolylinePoints(

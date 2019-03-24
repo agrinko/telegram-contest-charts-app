@@ -76,6 +76,10 @@
           --launcher-border-width: 80px;
         }
       }
+
+      #welcome-message {
+        display: none;
+      }
     </style>
   </head>
   <body data-theme="day">
@@ -84,6 +88,13 @@
 
     <div class="theme-switcher hidden">
       <div class="btn" id="theme-switcher">Switch to <span></span> Mode</div>
+    </div>
+
+    <div id="welcome-message" class="wm">
+      <span id="welcome-message-close"></span>
+      <h4>Welcome to my app!</h4>
+      <p>It supports multi-touch interaction with chart and preview - just so you know.</p>
+      <p>Have fun :)</p>
     </div>
 
     <link rel="stylesheet" href="tmp/styles.css">

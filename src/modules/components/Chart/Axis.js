@@ -81,7 +81,7 @@ export class Axis {
         x: x,
         pd: n2.x - x,
         next: n2,
-        text: format(x) // TODO: show hours on smaller scale
+        text: format(x)
       };
 
       n1.next = nNew;

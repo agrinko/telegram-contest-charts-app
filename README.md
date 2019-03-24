@@ -1,9 +1,5 @@
-# TODO:
+# Telegram Contest app
 
-- y-scale
-- configs & info
-- deploy
-- some unit tests
-- tslint & todos
-- visual indicators on touchstart
-- copy html on build
+This is developed for Telegram Developer's Contest in March 2019.
+
+(c) Alexey Grinko
