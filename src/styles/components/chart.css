@@ -143,7 +143,7 @@
         }
 
         @media (max-width: 1000px) {
-            min-width: 80px;
+            min-width: 100px;
             max-width: 170px;
 
             & .tooltip-date {

@@ -83,3 +83,9 @@ svg polyline {
         stroke-width: 1.6px;
     }
 }
+
+@media screen and (max-device-width: 480px){
+    body{
+        -webkit-text-size-adjust: none;
+    }
+}
