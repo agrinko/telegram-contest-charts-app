@@ -94,6 +94,9 @@ function showWelcomeMessage() {
   if (!TOUCH_SUPPORT)
     return;
 
+  if (window.localStorage && window.localStorage.getItem('closed-welcome-message'))
+    return;
+
   setTimeout(() => {
     let wm = document.getElementById('welcome-message');
     wm.classList.add('shown');
@@ -105,10 +108,13 @@ function showWelcomeMessage() {
 function _bindWelcomeMessageEvents() {
   let wm = document.getElementById('welcome-message');
   let closeBtn = document.getElementById('welcome-message-close');
+
   closeBtn.addEventListener('click', () => {
     wm.classList.remove('shown');
     setTimeout(() => {
       wm.parentElement.removeChild(wm);
     }, 500);
-  }, {once: true});
+
+    window.localStorage.setItem('closed-welcome-message', 'true');
+  }, { once: true });
 }
