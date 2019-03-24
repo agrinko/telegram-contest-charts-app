@@ -47,6 +47,11 @@
         left: 0;
         right: 0;
         z-index: 1;
+        transition: opacity 200ms ease-out;
+
+        &.hidden-axis {
+            opacity: .25;
+        }
 
         & > .label {
             position: absolute;
@@ -136,6 +141,12 @@
                 & .p-name {
                     font-size: 11px;
                 }
+            }
+        }
+
+        @media (max-width: 400px) {
+            & .tooltip-date {
+                font-size: 12px;
             }
         }
     }

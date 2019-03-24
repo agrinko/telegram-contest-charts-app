@@ -1,7 +1,6 @@
 # TODO:
 
 - y-scale
-- x-scale
 - configs & info
 - deploy
 - some unit tests

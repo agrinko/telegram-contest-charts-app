@@ -72,6 +72,6 @@ export class Chart {
   }
 
   finishInteraction() {
-    this.xAxis.render();
+    this.xAxis.finishInteraction();
   }
 }

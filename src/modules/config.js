@@ -9,20 +9,7 @@ export const THEMES = ['day', 'night'];
 
 export const CHART_PREVIEW_PADDING = .00; // TODO: fix padding
 
-export const ZERO_BASED_Y_AXIS = false;
-
 export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
-
-export const DEFAULT_LOCALE = 'en-us';
-export const DATE_FORMAT = {
-  month: 'short',
-  day: 'numeric'
-};
-export const DATE_FORMAT_LONG = {
-  month: 'short',
-  day: 'numeric',
-  weekday: 'short'
-};
 
 /**
  * Default part of the chart displayed initially

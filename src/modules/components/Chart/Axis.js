@@ -1,7 +1,5 @@
 import * as DOM from '../../utils/dom.utils';
-import {ceilToMultiplier, equals, round, roundToMultiplier} from "../../utils/math.utils";
 import {format} from "../../utils/date.utils";
-import {MINIMAL_TIME_STEP, TIME_COMPARISON_PRECISION, ONE_DAY} from "../../config";
 
 
 export class Axis {
@@ -18,9 +16,17 @@ export class Axis {
   }
 
   setBounds(bounds) {
-    let oldBounds = this.bounds;
     this.bounds = bounds;
-    this._move(bounds[0] - oldBounds[0], bounds[1] - oldBounds[1]);
+    let step = this._getActualTimeStep();
+
+    if (this.initialPD < step) {
+      this.initialPD = step;
+      // hook to fix labels when scaling out too much (so that initial diff becomes less than actual step)
+      this.render();
+    } else {
+      this._move();
+      this._renderLabels();
+    }
   }
 
   resize(viewBox) {
@@ -30,142 +36,172 @@ export class Axis {
   }
 
   render() {
-    this._createLabels();
+    this.el.innerHTML = '';
+    this._createNodes();
     this._renderLabels();
+  }
+
+  finishInteraction() {
+    this.el.classList.add('hidden-axis');
+
+    this.el.addEventListener('transitionend', () => {
+      this.render();
+      this.el.classList.remove('hidden-axis');
+    }, { once: true });
   }
 
   _createElement() {
     this.el = DOM.elementFromString(`<div class="x-axis"></div>`);
   }
 
-  _createLabels() {
-    let [lo, hi] = this.bounds;
-    let diff = hi -lo;
-    let step = Math.max(MINIMAL_TIME_STEP / 24, diff / this.nSteps);
+  _createNodes() {
+    let diff = this.bounds[1] - this.bounds[0];
 
-    this.nodes = [{
-      x: lo,
-      left: 0,
-      step
-    }, {
-      x: hi,
-      left: 1,
-      step
-    }];
-
-    this.fillNodes(this.nodes[0], this.nodes[1], step);
-
-    // this.labels = [];
-    // this.step = step;
-    //
-    // for (let t = lo - step; t <= hi + step; t += step) {
-    //   this.labels.push(this._createLabel(t));
-    // }
-
-    console.log(this.nodes, step);
-  }
-
-  fillNodes(n1, n2, step) {
-    let [lo, hi] = this.bounds;
-    let diff = hi -lo;
-
-    if (n2.x - n1.x > step * 0.75) {
-      let nNew = {
-        x: (n2.x + n1.x) / 2,
-        parentL: n1,
-        parentR: n2,
-        prev: n1,
-        next: n2,
-        step: step,
-        left: ((n2.x + n1.x) / 2 - this.bounds[0]) / diff,
-      };
-      n1.next = nNew;
-      n2.prev = nNew;
-      this.nodes.push(nNew);
-
-      this.fillNodes(n1, nNew, step);
-      this.fillNodes(nNew, n2, step);
-    }
-  }
-
-  _createLabel(node) {
-    let [lo, hi] = this.bounds;
-    let diff = hi -lo;
-    let step = Math.max(MINIMAL_TIME_STEP / 24, diff / this.nSteps);
-    let distanceToParent = node.parentL ? node.x - node.parentL.x : step;
-
-    return {
-      t: node.x,
-      opacity: Math.max(0, Math.min(1, 2 * distanceToParent / step - 1)),
-      text: format(node.x), // TODO: optimize to only call format() if day is different; show hours when needed
-      left: node.left,
-      diff
+    this.leftmostNode = {
+      x: this.bounds[0],
+      pd: diff, // "parent-distance"
+      text: format(this.bounds[0])
     };
+    this.rightmostNode = {
+      x: this.bounds[1],
+      pd: diff,
+      text: format(this.bounds[1])
+    };
+
+    this.initialPD = diff;
+
+    this._fillNodes(this.leftmostNode, this.rightmostNode, this._getActualTimeStep());
+    this._move();
   }
 
-  _move(deltaLo, deltaHi) {
-    let [lo, hi] = this.bounds;
-    let diff = hi -lo;
-    let step = Math.max(MINIMAL_TIME_STEP / 24, diff / this.nSteps);
-
-    let leftNode, rightNode;
-
-    this.nodes.forEach(node => {
-      node.left = (node.x - lo) / diff;
-      if (!leftNode || leftNode.left > node.left)
-        leftNode = node;
-      if (!rightNode || rightNode.left < node.left)
-        rightNode = node;
-    });
-
-    let actualStep = leftNode.step;
-
-    if (leftNode.x >= lo + actualStep) {
-      let ddd = rightNode.x - leftNode.x;
-      let newX = leftNode.x - ddd;
-      let newNode = {
-        x: newX,
-        left: (newX - lo) / diff,
-        step: actualStep
+  _fillNodes(n1, n2, step) {
+    if (n2.x - n1.x >= step) {
+      let x = (n2.x + n1.x) / 2;
+      let nNew = {
+        x: x,
+        pd: n2.x - x,
+        next: n2,
+        text: format(x) // TODO: show hours on smaller scale
       };
-      this.nodes.push(newNode);
-      leftNode.parentR = rightNode;
-      leftNode.parentL = newNode;
-      this.fillNodes(newNode, leftNode, actualStep);
-    }
-    //
-    // actualStep = rightNode.step;
-    // if (rightNode.x <= lo - actualStep/2) {
-    //   let newX = rightNode.x + 2 * actualStep;
-    //   let newNode = {
-    //     x: newX,
-    //     left: (newX - lo) / diff,
-    //     prev: rightNode,
-    //     step: actualStep
-    //   };
-    //   this.nodes.push(newNode);
-    //   this.fillNodes(rightNode, newNode, actualStep);
-    // }
 
-    this._renderLabels();
+      n1.next = nNew;
+
+      this._fillNodes(n1, nNew, step);
+      this._fillNodes(nNew, n2, step);
+    } else {
+      n1.next = n2;
+    }
+  }
+
+  _move() {
+    this._addBranchesOnTheEdges();
+    this._moveAndUpdate();
+  }
+
+  _addBranchesOnTheEdges() {
+    let step = this._getActualTimeStep();
+    let leftNode = this.leftmostNode,
+      rightNode = this.rightmostNode;
+
+    if (leftNode.x >= this.bounds[0] + step / 2) {
+      let newX = leftNode.x - leftNode.pd;
+      this.leftmostNode = {
+        x: newX,
+        text: format(newX),
+        pd: leftNode.pd
+      };
+      this._fillNodes(this.leftmostNode, leftNode, step);
+    }
+
+    if (rightNode.x <= this.bounds[1] - step / 2) {
+      let newX = rightNode.x + rightNode.pd;
+      this.rightmostNode = {
+        x: newX,
+        text: format(newX),
+        pd: rightNode.pd
+      };
+      this._fillNodes(rightNode, this.rightmostNode, step);
+    }
+  }
+
+  _moveAndUpdate() {
+    let diff = this.bounds[1] - this.bounds[0];
+    let step = this._getActualTimeStep();
+
+    let node = this.leftmostNode;
+    let prevNode;
+
+    do {
+      if (node.pd < step / 4) {
+        this._deleteNode(node, prevNode);
+      } else {
+        if (node.next)
+          this._fillNodes(node, node.next, step);
+
+        // move the node
+        node.left = (node.x - this.bounds[0]) / diff;
+        prevNode = node;
+      }
+
+      node = node.next;
+    } while (node);
+  }
+
+  _deleteNode(node, prevNode) {
+    // delete node
+    if (prevNode)
+      prevNode.next = node.next;
+    else
+      this.leftmostNode = node.next;
+
+    if (node.el && node.el.parentElement) {
+      this.el.removeChild(node.el);
+      node.el = null;
+    }
   }
 
   _renderLabels() {
-    this.nodes.forEach(node => {
-      let l = this._createLabel(node);
-      let tx = Math.max(0, Math.min(100, l.left * 100));
-      let el = DOM.elementFromString(`<div class="label" style="left: ${l.left * 100}%; opacity: ${l.opacity}; transform: translateX(${-tx}%)">${l.text}</div>`);
+    let diff = this.bounds[1] - this.bounds[0];
+    let step = this._getActualTimeStep();
+    let node = this.leftmostNode;
 
-      if (node.el)
-        this.el.removeChild(node.el);
+    do {
+      let opacity = Math.max(0, Math.min(1, 2 * node.pd / step - 1));
+      let left = node.left;
 
-      node.el = el;
-      this.el.appendChild(el);
-    });
+      if (opacity === 0 || left < - step/diff || left > 1 + step/diff) {
+        if (node.el && node.el.parentElement)
+          this.el.removeChild(node.el); // detach but not remove `el` reference in case it will be needed again
 
+        node = node.next;
+        continue;
+      }
+
+      let tx = -Math.max(0, Math.min(100, left * 100));
+
+      if (!node.el)
+        node.el = DOM.elementFromString(
+          `<div class="label">${node.text}</div>`
+        );
+
+      node.el.style.left = left * 100 + '%';
+      node.el.style.opacity = opacity;
+      node.el.style.transform = `translateX(${tx}%)`;
+
+      if (!node.el.parentElement)
+        this.el.appendChild(node.el);
+
+      node = node.next;
+    } while (node);
   }
 
   _getNumberOfSteps() {
-    return Math.floor(0.7 * Math.pow(this.width, 1/3)) || 1;
+    return this.width < 1000 ? 4 : 8;
+  }
+
+  _getActualTimeStep() {
+    let [lo, hi] = this.bounds;
+    let diff = hi -lo;
+    return diff / this.nSteps;
   }
 }

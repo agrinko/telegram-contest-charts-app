@@ -1,16 +1,3 @@
-export function debounce(fn, delay) {
-  let timeout;
-
-  return function(...args) {
-    clearTimeout(timeout);
-
-    timeout = setTimeout(() => {
-      timeout = null;
-      fn.apply(this, ...args);
-    }, delay);
-  };
-}
-
 export function throttle(fn, delay = 10) {
   let context, args;
   let timeout = null;
