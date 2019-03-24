@@ -1,4 +1,4 @@
-import { startApp } from './modules/app';
+import { startApp } from './js/app';
 import sampleData from '../mocks/sample';
 
 
